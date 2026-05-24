@@ -6,35 +6,35 @@
 
 @layer base {
   :root {
-    --background: 224 71% 4%;
-    --foreground: 210 40% 98%;
-    --card: 222 47% 7%;
-    --card-foreground: 210 40% 98%;
-    --popover: 224 71% 4%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 224 64% 58%;
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11.2%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11.2%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11.2%;
+    --primary: 221.2 83.2% 53.3%;
     --primary-foreground: 210 40% 98%;
-    --secondary: 222 47% 11.2%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 222 47% 11.2%;
-    --muted-foreground: 215.4 16.3% 56.9%;
-    --accent: 222 47% 11.2%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 346 84% 49%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222 47% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222 47% 11.2%;
+    --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224 64% 58%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
     --radius: 0.75rem;
   }
 }
 
 @layer base {
   * {
-    @apply border-slate-800/80;
+    @apply border-slate-200/80;
   }
   body {
-    @apply bg-[#070A13] text-slate-100 antialiased selection:bg-indigo-500/30 selection:text-indigo-200;
+    @apply bg-[#F8FAFC] text-slate-800 antialiased selection:bg-indigo-500/10 selection:text-indigo-900;
     font-family: 'Outfit', sans-serif;
   }
   pre, code, .font-mono {
@@ -48,12 +48,12 @@
   height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: rgba(11, 15, 25, 0.5);
+  background: rgba(241, 245, 249, 0.5);
 }
 ::-webkit-scrollbar-thumb {
   background: rgba(99, 102, 241, 0.15);
   border-radius: 9999px;
-  border: 2px solid #070A13;
+  border: 2px solid #F8FAFC;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(99, 102, 241, 0.4);
@@ -61,33 +61,34 @@
 
 /* Glassmorphism Panel Utility */
 .glass-panel {
-  background: rgba(18, 24, 38, 0.65);
+  background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03);
 }
 
 .glass-panel-hover {
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .glass-panel-hover:hover {
-  background: rgba(22, 32, 50, 0.75);
-  border-color: rgba(99, 102, 241, 0.25);
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5), 0 0 15px -3px rgba(99, 102, 241, 0.1);
+  background: rgba(255, 255, 255, 0.98);
+  border-color: rgba(99, 102, 241, 0.35);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05), 0 0 15px -3px rgba(99, 102, 241, 0.1);
   transform: translateY(-2px);
 }
 
 /* Text Gradients */
 .text-gradient-indigo {
-  @apply bg-gradient-to-r from-indigo-400 via-violet-400 to-fuchsia-400 bg-clip-text text-transparent;
+  @apply bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 bg-clip-text text-transparent;
 }
 
 .text-gradient-emerald {
-  @apply bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent;
+  @apply bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent;
 }
 
 .text-gradient-rose {
-  @apply bg-gradient-to-r from-rose-400 to-orange-400 bg-clip-text text-transparent;
+  @apply bg-gradient-to-r from-rose-600 to-orange-600 bg-clip-text text-transparent;
 }
 
 /* Animated Ambient Blobs */

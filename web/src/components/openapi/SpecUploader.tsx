@@ -50,8 +50,8 @@ export function SpecUploader({ onParsed, isLoading }: SpecUploaderProps) {
           onClick={() => setMode('file')}
           className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
             mode === 'file'
-              ? 'bg-primary text-primary-foreground'
-              : 'bg-muted text-muted-foreground hover:bg-muted/80'
+              ? 'bg-indigo-600 text-white'
+              : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
           }`}
         >
           <FileText className="inline-block w-4 h-4 mr-2" />
@@ -61,8 +61,8 @@ export function SpecUploader({ onParsed, isLoading }: SpecUploaderProps) {
           onClick={() => setMode('url')}
           className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
             mode === 'url'
-              ? 'bg-primary text-primary-foreground'
-              : 'bg-muted text-muted-foreground hover:bg-muted/80'
+              ? 'bg-indigo-600 text-white'
+              : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
           }`}
         >
           <Link className="inline-block w-4 h-4 mr-2" />
@@ -77,18 +77,18 @@ export function SpecUploader({ onParsed, isLoading }: SpecUploaderProps) {
           onDrop={handleDrop}
           className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${
             dragActive
-              ? 'border-primary bg-primary/5'
-              : 'border-muted-foreground/25 hover:border-muted-foreground/50'
+              ? 'border-indigo-400 bg-indigo-50'
+              : 'border-slate-200 hover:border-slate-300 bg-slate-50'
           }`}
         >
-          <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-          <p className="text-lg font-medium mb-2">
+          <Upload className="mx-auto h-12 w-12 text-slate-300 mb-4" />
+          <p className="text-lg font-medium text-slate-700 mb-2">
             Drag and drop your OpenAPI spec
           </p>
-          <p className="text-sm text-muted-foreground mb-4">
+          <p className="text-sm text-slate-500 mb-4">
             Supports .yaml, .yml, and .json files
           </p>
-          <label className="inline-flex items-center px-4 py-2 bg-primary text-primary-foreground rounded-lg cursor-pointer hover:bg-primary/90 transition-colors">
+          <label className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg cursor-pointer hover:bg-indigo-700 transition-colors font-semibold text-sm">
             {isLoading ? (
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
             ) : (
@@ -111,12 +111,12 @@ export function SpecUploader({ onParsed, isLoading }: SpecUploaderProps) {
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             placeholder="https://petstore.example.com/openapi.yaml"
-            className="w-full px-4 py-3 border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+            className="w-full px-4 py-3 border border-slate-200 rounded-lg bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 placeholder-slate-400"
           />
           <button
             onClick={handleUrlSubmit}
             disabled={!url || isLoading}
-            className="w-full px-4 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
+            className="w-full px-4 py-3 bg-indigo-600 text-white rounded-lg font-semibold text-sm hover:bg-indigo-700 transition-colors disabled:opacity-50"
           >
             {isLoading ? (
               <Loader2 className="inline-block w-4 h-4 mr-2 animate-spin" />

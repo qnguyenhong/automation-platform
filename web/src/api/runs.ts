@@ -43,6 +43,8 @@ export interface TestResult {
 export const runsApi = {
   list: (projectId: string, page = 1, perPage = 20) =>
     apiGet<TestRun[]>(`/projects/${projectId}/runs?page=${page}&per_page=${perPage}`),
+  listAll: (page = 1, perPage = 20) =>
+    apiGet<TestRun[]>(`/runs?page=${page}&per_page=${perPage}`),
   get: (runId: string) => apiGet<TestRun>(`/runs/${runId}`),
   trigger: (projectId: string, suiteId: string, data?: { trigger?: string; metadata?: any }) =>
     apiPost<TestRun>(`/projects/${projectId}/suites/${suiteId}/runs`, data),

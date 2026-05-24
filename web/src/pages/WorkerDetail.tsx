@@ -15,7 +15,7 @@ export default function WorkerDetail() {
   if (!worker) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="w-8 h-8 border-4 border-slate-800 border-t-indigo-500 rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-4 border-slate-200 border-t-indigo-500 rounded-full animate-spin"></div>
       </div>
     )
   }
@@ -24,13 +24,13 @@ export default function WorkerDetail() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">{worker.name}</h1>
-          <p className="text-slate-400 font-mono text-xs mt-0.5">{worker.hostname}</p>
+          <h1 className="text-2xl font-bold text-slate-800">{worker.name}</h1>
+          <p className="text-slate-500 font-mono text-xs mt-0.5">{worker.hostname}</p>
         </div>
         <span className={`inline-flex items-center px-3 py-1 rounded-md text-xs font-bold uppercase border ${
-          worker.status === 'online' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' :
-          worker.status === 'busy' ? 'bg-amber-500/10 border-amber-500/20 text-amber-450' :
-          'bg-slate-800/40 border-slate-800 text-slate-500'
+          worker.status === 'online' ? 'bg-emerald-50 border border-emerald-250 text-emerald-700' :
+          worker.status === 'busy' ? 'bg-amber-50 border border-amber-255 text-amber-700' :
+          'bg-slate-50 border border-slate-200 text-slate-600'
         }`}>
           {worker.status}
         </span>
@@ -38,58 +38,58 @@ export default function WorkerDetail() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Worker Info */}
-        <div className="glass-panel rounded-xl p-6 border border-slate-850">
-          <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400 mb-4">Worker Information</h3>
+        <div className="glass-panel rounded-xl p-6 border border-slate-200 shadow-sm">
+          <h3 className="text-sm font-bold uppercase tracking-wider text-slate-700 mb-4">Worker Information</h3>
           <dl className="space-y-4">
             <div>
-              <dt className="text-xs text-slate-500 font-bold uppercase tracking-wider">Node ID</dt>
-              <dd className="font-mono text-sm text-indigo-400 font-semibold mt-1">{worker.id}</dd>
+              <dt className="text-xs text-slate-550 font-bold uppercase tracking-wider">Node ID</dt>
+              <dd className="font-mono text-sm text-indigo-650 font-semibold mt-1">{worker.id}</dd>
             </div>
             <div>
-              <dt className="text-xs text-slate-500 font-bold uppercase tracking-wider">IP Address</dt>
-              <dd className="text-sm font-mono mt-1 text-slate-200">{worker.ip_address || '—'}</dd>
+              <dt className="text-xs text-slate-550 font-bold uppercase tracking-wider">IP Address</dt>
+              <dd className="text-sm font-mono mt-1 text-slate-800">{worker.ip_address || '—'}</dd>
             </div>
             <div>
-              <dt className="text-xs text-slate-500 font-bold uppercase tracking-wider">Agent Version</dt>
-              <dd className="text-sm font-mono mt-1 text-slate-200">{worker.version || '—'}</dd>
+              <dt className="text-xs text-slate-550 font-bold uppercase tracking-wider">Agent Version</dt>
+              <dd className="text-sm font-mono mt-1 text-slate-800">{worker.version || '—'}</dd>
             </div>
             <div>
-              <dt className="text-xs text-slate-500 font-bold uppercase tracking-wider">Max Concurrency Limit</dt>
-              <dd className="text-sm mt-1 text-slate-200 font-semibold">{worker.max_concurrent} active concurrent threads</dd>
+              <dt className="text-xs text-slate-550 font-bold uppercase tracking-wider">Max Concurrency Limit</dt>
+              <dd className="text-sm mt-1 text-slate-800 font-semibold">{worker.max_concurrent} active concurrent threads</dd>
             </div>
             <div>
-              <dt className="text-xs text-slate-500 font-bold uppercase tracking-wider">Last Heartbeat Ping</dt>
-              <dd className="text-sm mt-1 text-slate-350">{worker.last_heartbeat ? new Date(worker.last_heartbeat).toLocaleString() : 'Never'}</dd>
+              <dt className="text-xs text-slate-550 font-bold uppercase tracking-wider">Last Heartbeat Ping</dt>
+              <dd className="text-sm mt-1 text-slate-700">{worker.last_heartbeat ? new Date(worker.last_heartbeat).toLocaleString() : 'Never'}</dd>
             </div>
             <div>
-              <dt className="text-xs text-slate-500 font-bold uppercase tracking-wider">Node Registration Time</dt>
-              <dd className="text-sm mt-1 text-slate-350">{new Date(worker.registered_at).toLocaleString()}</dd>
+              <dt className="text-xs text-slate-550 font-bold uppercase tracking-wider">Node Registration Time</dt>
+              <dd className="text-sm mt-1 text-slate-700">{new Date(worker.registered_at).toLocaleString()}</dd>
             </div>
           </dl>
         </div>
 
         {/* Executors */}
-        <div className="glass-panel rounded-xl p-6 border border-slate-850">
-          <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400 mb-4">Supported Execution Engines</h3>
+        <div className="glass-panel rounded-xl p-6 border border-slate-200 shadow-sm">
+          <h3 className="text-sm font-bold uppercase tracking-wider text-slate-700 mb-4">Supported Execution Engines</h3>
           <div className="space-y-2">
             {worker.executor_types?.map((type) => (
-              <div key={type} className="flex items-center gap-2.5 p-3 bg-slate-900/40 border border-slate-850 rounded-xl">
-                <Activity className="w-4 h-4 text-indigo-400" />
-                <span className="font-semibold text-sm text-slate-200 capitalize">{type}</span>
+              <div key={type} className="flex items-center gap-2.5 p-3 bg-slate-50 border border-slate-200 rounded-xl shadow-sm">
+                <Activity className="w-4 h-4 text-indigo-600" />
+                <span className="font-semibold text-sm text-slate-800 capitalize">{type}</span>
               </div>
             ))}
           </div>
 
-          <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400 mt-6 mb-4">Node Labels</h3>
+          <h3 className="text-sm font-bold uppercase tracking-wider text-slate-700 mt-6 mb-4">Node Labels</h3>
           <div className="flex flex-wrap gap-2">
             {worker.labels && Object.keys(worker.labels).length > 0 ? (
               Object.entries(worker.labels).map(([key, value]) => (
-                <span key={key} className="px-3 py-1 text-xs font-mono bg-slate-900 border border-slate-850 text-slate-350 rounded-md font-semibold">
+                <span key={key} className="px-3 py-1 text-xs font-mono bg-slate-55 border border-slate-200 text-slate-700 rounded-md font-semibold">
                   {key}: {String(value)}
                 </span>
               ))
             ) : (
-              <p className="text-xs text-slate-500 italic">No custom labels configured on this node.</p>
+              <p className="text-xs text-slate-500 italic font-medium">No custom labels configured on this node.</p>
             )}
           </div>
         </div>

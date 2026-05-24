@@ -7,6 +7,7 @@ import TestSuites from './pages/TestSuites'
 import SuiteDetail from './pages/SuiteDetail'
 import TestRunDetail from './pages/TestRunDetail'
 import ResultsDetail from './pages/ResultsDetail'
+import RunsHistory from './pages/RunsHistory'
 import Workers from './pages/Workers'
 import WorkerDetail from './pages/WorkerDetail'
 import Settings from './pages/Settings'
@@ -37,6 +38,7 @@ export default function App() {
         <Route path="projects/:projectId/suites" element={<TestSuites />} />
         <Route path="projects/:projectId/suites/:suiteId" element={<SuiteDetail />} />
         <Route path="projects/:projectId/openapi-import" element={<OpenAPIImport />} />
+        <Route path="runs" element={<RunsHistory />} />
         <Route path="runs/:runId" element={<TestRunDetail />} />
         <Route path="runs/:runId/results/:resultId" element={<ResultsDetail />} />
         <Route path="workers" element={<Workers />} />

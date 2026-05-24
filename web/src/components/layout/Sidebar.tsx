@@ -15,6 +15,7 @@ import {
 
 const navigation = [
   { name: 'Performance Analytics', href: '/', icon: LayoutDashboard },
+  { name: 'Runs History', href: '/runs', icon: PlayCircle },
   { name: 'Worker Nodes', href: '/workers', icon: Server },
   { name: 'System Preferences', href: '/settings', icon: Settings },
 ]
@@ -39,8 +40,8 @@ export default function Sidebar() {
   }
 
   return (
-    <aside className="w-64 bg-[#0B0F19] border-r border-slate-800/80 flex flex-col z-20">
-      <div className="p-5 border-b border-slate-800/60">
+    <aside className="w-64 bg-white border-r border-slate-200/80 flex flex-col z-20 shadow-sm">
+      <div className="p-5 border-b border-slate-200/60">
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 bg-gradient-to-tr from-indigo-500 to-violet-500 rounded-md flex items-center justify-center shadow-lg shadow-indigo-500/20">
             <span className="text-white text-xs font-black font-mono">A</span>
@@ -61,11 +62,11 @@ export default function Sidebar() {
                 to={item.href}
                 className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-semibold transition-all border ${
                   isActive
-                    ? 'bg-indigo-500/10 border-indigo-500/30 text-indigo-400'
-                    : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                    ? 'bg-indigo-50 border-indigo-200 text-indigo-600 shadow-sm shadow-indigo-500/5'
+                    : 'border-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                 }`}
               >
-                <item.icon className="w-4 h-4 shrink-0" />
+                <item.icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-indigo-650' : 'text-slate-500'}`} />
                 {item.name}
               </Link>
             )
@@ -73,14 +74,14 @@ export default function Sidebar() {
         </div>
 
         <div className="pt-2">
-          <div className="flex items-center justify-between px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 border-b border-slate-800/40 pb-2 mb-2">
+          <div className="flex items-center justify-between px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 border-b border-slate-200/60 pb-2 mb-2">
             <div className="flex items-center gap-2">
               <FolderKanban className="w-3.5 h-3.5 text-slate-500" />
               Workspace Projects
             </div>
             <button
               onClick={handleCreateClick}
-              className="p-1 hover:bg-slate-800/60 rounded text-slate-500 hover:text-slate-200 transition-colors"
+              className="p-1 hover:bg-slate-100 rounded text-slate-500 hover:text-slate-800 transition-colors"
               title="Initialize Project"
             >
               <Plus className="w-3.5 h-3.5" />
@@ -96,16 +97,16 @@ export default function Sidebar() {
                     to={`/projects/${project.id}/suites`}
                     className={`w-full flex items-center gap-3 pl-3 pr-9 py-2 rounded-lg text-sm font-medium transition-all border ${
                       isActive
-                        ? 'bg-indigo-500/5 border-indigo-500/20 text-indigo-400'
-                        : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/20'
+                        ? 'bg-indigo-50/50 border-indigo-100 text-indigo-600'
+                        : 'border-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                     }`}
                   >
-                    <PlayCircle className={`w-4 h-4 shrink-0 ${isActive ? 'text-indigo-400' : 'text-slate-500'}`} />
+                    <PlayCircle className={`w-4 h-4 shrink-0 ${isActive ? 'text-indigo-500' : 'text-slate-500'}`} />
                     <span className="truncate">{project.name}</span>
                   </Link>
                   <button
                     onClick={(e) => handleEditClick(e, project)}
-                    className="absolute right-2 hidden group-hover:flex items-center p-1 bg-slate-900 border border-slate-700 text-slate-400 hover:text-indigo-400 rounded-md transition shadow-md"
+                    className="absolute right-2 hidden group-hover:flex items-center p-1 bg-white border border-slate-200 text-slate-500 hover:text-indigo-600 rounded-md transition shadow-sm hover:border-indigo-300"
                     title="Configure Project Settings"
                   >
                     <Settings2 className="w-3.5 h-3.5" />

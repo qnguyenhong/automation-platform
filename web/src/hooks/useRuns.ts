@@ -9,6 +9,13 @@ export function useRuns(projectId: string, page = 1, perPage = 20) {
   })
 }
 
+export function useAllRuns(page = 1, perPage = 20) {
+  return useQuery({
+    queryKey: ['runs', 'all', page, perPage],
+    queryFn: () => runsApi.listAll(page, perPage),
+  })
+}
+
 export function useRun(runId: string) {
   return useQuery({
     queryKey: ['runs', runId],

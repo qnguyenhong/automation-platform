@@ -70,6 +70,30 @@ func (d *Deps) ListTestRuns(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func (d *Deps) ListAllTestRuns(w http.ResponseWriter, r *http.Request) {
+	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
+	perPage, _ := strconv.Atoi(r.URL.Query().Get("per_page"))
+	if page < 1 {
+		page = 1
+	}
+	if perPage < 1 {
+		perPage = 20
+	}
+
+	runs, total, err := d.RunSvc.ListAll(r.Context(), page, perPage)
+	if err != nil {
+		httputil.AppError(w, err)
+		return
+	}
+
+	httputil.JSONWithMeta(w, http.StatusOK, runs, httputil.Pagination{
+		Page:       page,
+		PerPage:    perPage,
+		Total:      total,
+		TotalPages: (int(total) + perPage - 1) / perPage,
+	})
+}
+
 func (d *Deps) GetTestRun(w http.ResponseWriter, r *http.Request) {
 	runID, err := uuid.Parse(chi.URLParam(r, "runID"))
 	if err != nil {

@@ -11,11 +11,11 @@ interface EndpointSelectorProps {
 }
 
 const METHOD_COLORS: Record<string, string> = {
-  GET: 'bg-green-100 text-green-800',
-  POST: 'bg-blue-100 text-blue-800',
-  PUT: 'bg-yellow-100 text-yellow-800',
-  DELETE: 'bg-red-100 text-red-800',
-  PATCH: 'bg-purple-100 text-purple-800',
+  GET: 'bg-sky-50 text-sky-600 border border-sky-200',
+  POST: 'bg-emerald-50 text-emerald-600 border border-emerald-200',
+  PUT: 'bg-amber-50 text-amber-600 border border-amber-200',
+  DELETE: 'bg-rose-50 text-rose-600 border border-rose-200',
+  PATCH: 'bg-violet-50 text-violet-600 border border-violet-200',
 }
 
 export function EndpointSelector({
@@ -64,74 +64,74 @@ export function EndpointSelector({
     <div className="space-y-4">
       <div className="flex items-center gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search endpoints..."
-            className="w-full pl-10 pr-4 py-2 border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+            className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-slate-400 text-sm"
           />
         </div>
         <button
           onClick={onSelectAll}
-          className="px-3 py-2 text-sm border rounded-lg hover:bg-muted transition-colors"
+          className="px-3 py-2 text-xs font-semibold border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-600 transition-colors"
         >
           Select All
         </button>
         <button
           onClick={onDeselectAll}
-          className="px-3 py-2 text-sm border rounded-lg hover:bg-muted transition-colors"
+          className="px-3 py-2 text-xs font-semibold border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-600 transition-colors"
         >
           Deselect All
         </button>
-        <span className="text-sm text-muted-foreground">
+        <span className="text-xs font-semibold text-indigo-600 shrink-0">
           {selected.size} selected
         </span>
       </div>
 
-      <div className="border rounded-lg divide-y">
+      <div className="border border-slate-200 rounded-lg divide-y divide-slate-100 overflow-hidden">
         {Object.entries(grouped).map(([tag, eps]) => (
           <div key={tag}>
             <button
               onClick={() => toggleTag(tag)}
-              className="w-full flex items-center gap-2 px-4 py-2 bg-muted/50 hover:bg-muted transition-colors"
+              className="w-full flex items-center gap-2 px-4 py-2.5 bg-slate-50 hover:bg-slate-100 transition-colors text-left"
             >
               {collapsedTags.has(tag) ? (
-                <ChevronRight className="h-4 w-4" />
+                <ChevronRight className="h-4 w-4 text-slate-400" />
               ) : (
-                <ChevronDown className="h-4 w-4" />
+                <ChevronDown className="h-4 w-4 text-slate-400" />
               )}
-              <span className="font-medium capitalize">{tag}</span>
-              <span className="text-sm text-muted-foreground">
+              <span className="font-semibold text-sm text-slate-700 capitalize">{tag}</span>
+              <span className="text-xs text-slate-400">
                 ({eps.length})
               </span>
             </button>
             {!collapsedTags.has(tag) && (
-              <div className="divide-y">
+              <div className="divide-y divide-slate-50">
                 {eps.map((ep) => {
                   const key = endpointKey(ep)
                   return (
                     <label
                       key={key}
-                      className="flex items-center gap-3 px-4 py-3 hover:bg-muted/30 cursor-pointer transition-colors"
+                      className="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 cursor-pointer transition-colors"
                     >
                       <input
                         type="checkbox"
                         checked={selected.has(key)}
                         onChange={() => onToggle(key)}
-                        className="h-4 w-4 rounded border-gray-300"
+                        className="h-4 w-4 rounded border-slate-300 accent-indigo-600"
                       />
                       <span
-                        className={`px-2 py-0.5 rounded text-xs font-mono font-bold ${
-                          METHOD_COLORS[ep.method] || 'bg-gray-100 text-gray-800'
+                        className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold ${
+                          METHOD_COLORS[ep.method] || 'bg-slate-100 text-slate-600 border border-slate-200'
                         }`}
                       >
                         {ep.method}
                       </span>
-                      <span className="font-mono text-sm">{ep.path}</span>
+                      <span className="font-mono text-sm text-slate-700">{ep.path}</span>
                       {ep.summary && (
-                        <span className="text-sm text-muted-foreground ml-auto">
+                        <span className="text-xs text-slate-400 ml-auto">
                           {ep.summary}
                         </span>
                       )}

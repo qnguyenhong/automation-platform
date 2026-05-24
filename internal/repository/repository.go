@@ -396,6 +396,34 @@ func (r *TestRunRepo) ListByProject(ctx context.Context, projectID uuid.UUID, li
 	return runs, total, nil
 }
 
+func (r *TestRunRepo) ListAll(ctx context.Context, limit, offset int) ([]model.TestRun, int64, error) {
+	var total int64
+	err := r.pool.QueryRow(ctx, `SELECT COUNT(*) FROM test_runs`).Scan(&total)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	rows, err := r.pool.Query(ctx,
+		`SELECT id, suite_id, project_id, status, trigger, triggered_by, total_cases, passed, failed, skipped, errored, started_at, finished_at, duration_ms, metadata, created_at
+		 FROM test_runs ORDER BY created_at DESC LIMIT $1 OFFSET $2`,
+		limit, offset,
+	)
+	if err != nil {
+		return nil, 0, err
+	}
+	defer rows.Close()
+
+	var runs []model.TestRun
+	for rows.Next() {
+		var tr model.TestRun
+		if err := rows.Scan(&tr.ID, &tr.SuiteID, &tr.ProjectID, &tr.Status, &tr.Trigger, &tr.TriggeredBy, &tr.TotalCases, &tr.Passed, &tr.Failed, &tr.Skipped, &tr.Errored, &tr.StartedAt, &tr.FinishedAt, &tr.DurationMS, &tr.Metadata, &tr.CreatedAt); err != nil {
+			return nil, 0, err
+		}
+		runs = append(runs, tr)
+	}
+	return runs, total, nil
+}
+
 func (r *TestRunRepo) ListBySuite(ctx context.Context, suiteID uuid.UUID, limit, offset int) ([]model.TestRun, int64, error) {
 	var total int64
 	err := r.pool.QueryRow(ctx, `SELECT COUNT(*) FROM test_runs WHERE suite_id = $1`, suiteID).Scan(&total)

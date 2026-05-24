@@ -51,6 +51,7 @@ func main() {
 
 	dispatcher := service.NewDispatcher(lg, workerSvc, 100)
 	workerSvc.SetDispatcher(dispatcher)
+	workerSvc.StartHealthCheck(ctx, lg)
 	runSvc := service.NewTestRunService(runRepo, resultRepo, suiteRepo, caseRepo, loadRepo, dispatcher)
 
 	openapiSvc := service.NewOpenAPIService(openapiRepo, suiteSvc, caseSvc)

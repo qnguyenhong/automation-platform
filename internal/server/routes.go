@@ -111,6 +111,7 @@ func SetupRoutes(r *chi.Mux, deps *handler.Deps, logger *slog.Logger) {
 			})
 
 			// Runs (global)
+			r.Get("/runs", deps.ListAllTestRuns)
 			r.Route("/runs/{runID}", func(r chi.Router) {
 				r.Get("/", deps.GetTestRun)
 				r.Post("/cancel", deps.CancelRun)

@@ -361,19 +361,19 @@ export default function SuiteDetail() {
       <div className="flex items-center justify-between">
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-white">{suite?.name}</h1>
-            <span className="px-2.5 py-0.5 text-xs font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-md">
+            <h1 className="text-2xl font-bold text-slate-850">{suite?.name}</h1>
+            <span className="px-2.5 py-0.5 text-xs font-semibold bg-indigo-50 text-indigo-650 border border-indigo-200 rounded-md">
               {getSuiteLabelText(suite?.test_type)}
             </span>
           </div>
-          <p className="text-slate-400 mt-1 text-sm">{suite?.description || 'Configure parameters, endpoints, and load thresholds.'}</p>
+          <p className="text-slate-500 mt-1 text-sm font-medium">{suite?.description || 'Configure parameters, endpoints, and load thresholds.'}</p>
         </div>
         <button
           onClick={handleRun}
           disabled={triggerRun.isPending}
-          className="flex items-center gap-2 px-4 py-2.5 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 text-emerald-400 font-bold rounded-lg shadow-sm transition disabled:opacity-50 text-sm animate-in fade-in duration-300"
+          className="flex items-center gap-2 px-4 py-2.5 bg-emerald-50 hover:bg-emerald-100 border border-emerald-250 text-emerald-700 font-bold rounded-lg shadow-sm transition disabled:opacity-50 text-sm animate-in fade-in duration-300 animate-pulse"
         >
-          <Play className="w-4 h-4 fill-current animate-pulse" />
+          <Play className="w-4 h-4 fill-current" />
           {triggerRun.isPending ? 'Running...' : 'Execute Suite'}
         </button>
       </div>
@@ -381,13 +381,13 @@ export default function SuiteDetail() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
         {/* Left Column: Endpoints Table & K6 Guide */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="glass-panel rounded-xl border border-slate-850 overflow-hidden">
-            <div className="p-6 border-b border-slate-850 bg-slate-900/30 flex items-center justify-between">
-              <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400">Target Endpoints</h3>
+          <div className="glass-panel rounded-xl border border-slate-205 overflow-hidden shadow-sm">
+            <div className="p-6 border-b border-slate-200 bg-slate-50/50 flex items-center justify-between">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-slate-700">Target Endpoints</h3>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => navigate(`/projects/${projectId}/openapi-import`)}
-                  className="flex items-center gap-2 px-3.5 py-2 text-xs font-semibold bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 border border-indigo-500/20 rounded-lg transition"
+                  className="flex items-center gap-2 px-3.5 py-2 text-xs font-semibold bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200 rounded-lg transition"
                 >
                   <Upload className="w-4 h-4" />
                   Ingest from OpenAPI Spec
@@ -397,7 +397,7 @@ export default function SuiteDetail() {
                     setEditingCase(null)
                     setShowModal(true)
                   }}
-                  className="flex items-center gap-2 px-3.5 py-2 text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-sm transition"
+                  className="flex items-center gap-2 px-3.5 py-2 text-xs font-bold bg-indigo-650 hover:bg-indigo-700 text-white rounded-lg shadow-sm transition"
                 >
                   <Plus className="w-4 h-4" />
                   Define Target Endpoint
@@ -407,7 +407,7 @@ export default function SuiteDetail() {
             
             <div className="overflow-x-auto">
               <table className="w-full text-left">
-                <thead className="bg-[#0B0F19]/50 text-slate-400 text-xs font-bold uppercase border-b border-slate-850">
+                <thead className="bg-slate-50 text-slate-600 text-xs font-bold uppercase border-b border-slate-200">
                   <tr>
                     <th className="px-6 py-4">Endpoint Label</th>
                     <th className="px-6 py-4">Target URL</th>
@@ -416,7 +416,7 @@ export default function SuiteDetail() {
                     <th className="px-6 py-4 text-right">Configure</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-850 text-sm">
+                <tbody className="divide-y divide-slate-100 text-sm">
                   {cases && cases.length > 0 ? (
                     cases.map((testCase) => {
                       const cfg = testCase.config || {}
@@ -424,8 +424,8 @@ export default function SuiteDetail() {
                       const url = cfg.url || ''
 
                       return (
-                        <tr key={testCase.id} className="hover:bg-slate-800/10 transition-colors">
-                          <td className="px-6 py-4 font-semibold text-slate-200">
+                        <tr key={testCase.id} className="hover:bg-slate-50/80 transition-colors">
+                          <td className="px-6 py-4 font-semibold text-slate-800">
                             <div>
                               {testCase.name}
                               {testCase.description && (
@@ -436,19 +436,19 @@ export default function SuiteDetail() {
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-2 font-mono text-xs">
                               <span className={`px-2 py-0.5 rounded font-bold border ${
-                                method === 'GET' ? 'bg-sky-500/10 text-sky-400 border-sky-500/20' :
-                                method === 'POST' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
-                                method === 'PUT' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' : 
-                                'bg-rose-500/10 text-rose-400 border-rose-500/20'
+                                method === 'GET' ? 'bg-sky-50 text-sky-700 border-sky-200' :
+                                method === 'POST' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                                method === 'PUT' ? 'bg-amber-50 text-amber-700 border-amber-200' : 
+                                'bg-rose-50 text-rose-700 border-rose-200'
                               }`}>
                                 {method}
                               </span>
-                              <span className="text-slate-300 truncate max-w-xs">{url || '—'}</span>
+                              <span className="text-slate-650 truncate max-w-xs">{url || '—'}</span>
                             </div>
                           </td>
                           <td className="px-6 py-4">
                             <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border ${
-                              testCase.enabled ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-slate-800 text-slate-400 border-slate-700'
+                              testCase.enabled ? 'bg-emerald-50 text-emerald-750 border-emerald-250' : 'bg-slate-50 text-slate-550 border-slate-200'
                             }`}>
                               {testCase.enabled ? 'Enabled' : 'Disabled'}
                             </span>
@@ -456,7 +456,7 @@ export default function SuiteDetail() {
                           <td className="px-6 py-4">
                             <div className="flex flex-wrap gap-1">
                               {testCase.tags?.map((tag) => (
-                                <span key={tag} className="px-2 py-0.5 text-xs bg-slate-900 border border-slate-800 text-slate-400 rounded font-mono">
+                                <span key={tag} className="px-2 py-0.5 text-xs bg-slate-50 border border-slate-200 text-slate-500 rounded font-mono">
                                   {tag}
                                 </span>
                               ))}
@@ -468,7 +468,7 @@ export default function SuiteDetail() {
                                 setEditingCase(testCase)
                                 setShowModal(true)
                               }}
-                              className="p-1.5 text-slate-400 hover:text-indigo-400 rounded-md border border-slate-800 bg-slate-900 hover:border-slate-750 transition"
+                              className="p-1.5 text-slate-550 hover:text-indigo-650 rounded-md border border-slate-200 bg-white hover:border-indigo-300 hover:bg-slate-50 transition shadow-sm"
                             >
                               <Edit3 className="w-3.5 h-3.5" />
                             </button>
@@ -478,8 +478,8 @@ export default function SuiteDetail() {
                     })
                   ) : (
                     <tr>
-                      <td colSpan={5} className="px-6 py-12 text-center text-slate-500">
-                        <AlertCircle className="w-8 h-8 mx-auto mb-2 text-slate-650" />
+                      <td colSpan={5} className="px-6 py-12 text-center text-slate-500 font-medium">
+                        <AlertCircle className="w-8 h-8 mx-auto mb-2 text-slate-400 animate-bounce" />
                         No target endpoints defined for this execution suite.
                       </td>
                     </tr>
@@ -494,9 +494,9 @@ export default function SuiteDetail() {
 
         {/* Right Column: Execution History */}
         <div className="space-y-6">
-          <div className="glass-panel rounded-xl border border-slate-850 overflow-hidden">
-            <div className="p-5 border-b border-slate-850 bg-slate-900/30 flex items-center justify-between">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Execution History</h3>
+          <div className="glass-panel rounded-xl border border-slate-205 overflow-hidden shadow-sm">
+            <div className="p-5 border-b border-slate-200 bg-slate-50/50 flex items-center justify-between">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700">Execution History</h3>
             </div>
             <div className="p-5 space-y-3">
               {suiteRuns.length > 0 ? (
@@ -504,53 +504,52 @@ export default function SuiteDetail() {
                   <Link
                     key={run.id}
                     to={`/runs/${run.id}`}
-                    className="block p-3.5 bg-slate-950/40 border border-slate-850 hover:border-slate-800 rounded-xl hover:bg-slate-800/10 transition group"
+                    className="block p-3.5 bg-white border border-slate-200 hover:border-slate-350 rounded-xl hover:bg-slate-50/60 transition group shadow-sm"
                   >
                     <div className="flex items-center justify-between gap-2">
-                      <span className="font-mono text-xs font-bold text-indigo-400 group-hover:text-indigo-300 transition-colors">
+                      <span className="font-mono text-xs font-bold text-indigo-600 group-hover:text-indigo-850 transition-colors">
                         #{run.id.slice(0, 8)}
                       </span>
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded text-[10px] font-bold uppercase border ${
-                        run.status === 'passed' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' :
-                        run.status === 'failed' ? 'bg-rose-500/10 border-rose-500/20 text-rose-400' :
-                        run.status === 'running' ? 'bg-blue-500/10 border-blue-500/20 text-blue-400 animate-pulse' :
-                        'bg-slate-800/40 border-slate-800 text-slate-500'
+                        run.status === 'passed' ? 'bg-emerald-50 border-emerald-250 text-emerald-700' :
+                        run.status === 'failed' ? 'bg-rose-50 border-rose-250 text-rose-700' :
+                        run.status === 'running' ? 'bg-blue-50 border-blue-250 text-blue-700 animate-pulse' :
+                        'bg-slate-50 border-slate-200 text-slate-550'
                       }`}>
                         {run.status === 'passed' ? 'Successful' : run.status}
                       </span>
                     </div>
                     
-                    <div className="flex items-center justify-between text-[11px] text-slate-450 mt-2.5 font-medium">
-                      <span>Trigger: <strong className="text-slate-350 capitalize font-semibold">{run.trigger}</strong></span>
+                    <div className="flex items-center justify-between text-[11px] text-slate-500 mt-2.5 font-medium">
+                      <span>Trigger: <strong className="text-slate-700 capitalize font-semibold">{run.trigger}</strong></span>
                       <span className="font-mono">{run.duration_ms ? `${(run.duration_ms / 1000).toFixed(1)}s` : '—'}</span>
                     </div>
                     
-                    <div className="text-[10px] text-slate-500 mt-1 font-mono">
+                    <div className="text-[10px] text-slate-400 mt-1 font-mono">
                       {new Date(run.created_at).toLocaleString()}
                     </div>
                   </Link>
                 ))
               ) : (
-                <div className="p-8 text-center text-slate-500 text-xs italic">
+                <div className="p-8 text-center text-slate-500 text-xs italic font-medium">
                   No execution runs recorded yet for this suite.
                 </div>
-              )}
-            </div>
+                         </div>
           </div>
         </div>
       </div>
-
+ 
       {/* Case Configuration Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-[#0B0F19] rounded-2xl shadow-xl w-full max-w-3xl max-h-[90vh] flex flex-col border border-slate-800 animate-in fade-in zoom-in-95 duration-150 overflow-hidden">
-            <div className="px-6 py-4 border-b border-slate-850 flex items-center justify-between bg-slate-900/30">
-              <h2 className="text-lg font-bold text-slate-100">
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-3xl max-h-[90vh] flex flex-col border border-slate-200 animate-in fade-in zoom-in-95 duration-150 overflow-hidden">
+            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50/50">
+              <h2 className="text-lg font-bold text-slate-800">
                 {editingCase ? 'Configure Target Endpoint' : 'Define Target Endpoint'}
               </h2>
               <button
                 onClick={() => setShowModal(false)}
-                className="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-slate-200 transition"
+                className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-550 hover:text-slate-800 transition"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -560,42 +559,42 @@ export default function SuiteDetail() {
               {/* General Fields */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Target Endpoint Name</label>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Target Endpoint Name</label>
                   <input
                     type="text"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-3.5 py-2.5 bg-slate-950/80 border border-slate-850 rounded-xl focus:outline-none focus:border-indigo-500 text-sm text-slate-100 focus:ring-1 focus:ring-indigo-500 transition-all"
+                    className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-500 text-sm text-slate-850 focus:ring-1 focus:ring-indigo-500 transition-all font-medium"
                     placeholder="e.g. GET User Profile API"
                     required
                   />
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Endpoint Description</label>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-550 mb-1">Endpoint Description</label>
                   <textarea
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="w-full px-3.5 py-2.5 bg-slate-950/80 border border-slate-850 rounded-xl focus:outline-none focus:border-indigo-500 text-sm h-20 resize-none text-slate-100 focus:ring-1 focus:ring-indigo-500 transition-all"
+                    className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-500 text-sm h-20 resize-none text-slate-850 focus:ring-1 focus:ring-indigo-500 transition-all font-medium"
                     placeholder="Describe what this target endpoint validates..."
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Sort Order</label>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-550 mb-1">Sort Order</label>
                   <input
                     type="number"
                     value={formData.sort_order}
                     onChange={(e) => setFormData({ ...formData, sort_order: Number(e.target.value) })}
-                    className="w-full px-3.5 py-2.5 bg-slate-950/80 border border-slate-850 rounded-xl focus:outline-none focus:border-indigo-500 text-sm text-slate-100 focus:ring-1 focus:ring-indigo-500 transition-all"
+                    className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-500 text-sm text-slate-850 focus:ring-1 focus:ring-indigo-500 transition-all font-medium"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Tags (comma separated)</label>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-550 mb-1">Tags (comma separated)</label>
                   <input
                     type="text"
                     value={formData.tags}
                     onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-                    className="w-full px-3.5 py-2.5 bg-slate-950/80 border border-slate-850 rounded-xl focus:outline-none focus:border-indigo-500 text-sm text-slate-100 focus:ring-1 focus:ring-indigo-500 transition-all"
+                    className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-500 text-sm text-slate-850 focus:ring-1 focus:ring-indigo-500 transition-all font-medium"
                     placeholder="load, checkout, auth"
                   />
                 </div>
@@ -605,15 +604,15 @@ export default function SuiteDetail() {
                     id="case-enabled"
                     checked={formData.enabled}
                     onChange={(e) => setFormData({ ...formData, enabled: e.target.checked })}
-                    className="w-4 h-4 text-indigo-650 bg-slate-950 border-slate-850 rounded focus:ring-indigo-500"
+                    className="w-4 h-4 text-indigo-605 bg-white border-slate-250 rounded focus:ring-indigo-500"
                   />
-                  <label htmlFor="case-enabled" className="text-sm font-semibold text-slate-350">Enabled</label>
+                  <label htmlFor="case-enabled" className="text-sm font-semibold text-slate-700">Enabled</label>
                 </div>
               </div>
 
               {/* Endpoint configuration */}
-              <div className="border-t border-slate-850 pt-6 space-y-4">
-                <h3 className="font-bold text-slate-300 text-sm">Request Configuration</h3>
+              <div className="border-t border-slate-200 pt-6 space-y-4">
+                <h3 className="font-bold text-slate-800 text-sm">Request Configuration</h3>
                 <div className="flex gap-3">
                   <select
                     value={formData.config.method}
@@ -621,7 +620,7 @@ export default function SuiteDetail() {
                       ...formData,
                       config: { ...formData.config, method: e.target.value }
                     })}
-                    className="px-3.5 py-2.5 bg-slate-950/80 border border-slate-850 rounded-xl focus:outline-none focus:border-indigo-500 text-sm font-bold text-slate-100 focus:ring-1 focus:ring-indigo-500 transition cursor-pointer"
+                    className="px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-500 text-sm font-bold text-slate-800 focus:ring-1 focus:ring-indigo-500 transition cursor-pointer"
                   >
                     <option value="GET">GET</option>
                     <option value="POST">POST</option>
@@ -635,7 +634,7 @@ export default function SuiteDetail() {
                       ...formData,
                       config: { ...formData.config, url: e.target.value }
                     })}
-                    className="flex-1 px-3.5 py-2.5 bg-slate-950/80 border border-slate-850 rounded-xl focus:outline-none focus:border-indigo-500 text-sm font-mono text-slate-100 focus:ring-1 focus:ring-indigo-500 transition-all"
+                    className="flex-1 px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-500 text-sm font-mono text-slate-800 focus:ring-1 focus:ring-indigo-500 transition-all"
                     placeholder="https://api.example.com/endpoint"
                     required
                   />
@@ -644,11 +643,11 @@ export default function SuiteDetail() {
                 {/* Headers Grid */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <label className="text-xs font-bold uppercase tracking-wider text-slate-400">Headers</label>
+                    <label className="text-xs font-bold uppercase tracking-wider text-slate-550">Headers</label>
                     <button
                       type="button"
                       onClick={addHeaderRow}
-                      className="text-xs text-indigo-400 hover:text-indigo-300 font-bold"
+                      className="text-xs text-indigo-600 hover:text-indigo-850 font-bold"
                     >
                       + Add Header
                     </button>
@@ -660,19 +659,19 @@ export default function SuiteDetail() {
                         value={row.key}
                         onChange={(e) => updateHeaderRow(idx, 'key', e.target.value)}
                         placeholder="Key (e.g. Authorization)"
-                        className="flex-1 px-3 py-2 bg-slate-950/85 border border-slate-850 rounded-xl text-xs font-mono text-slate-100"
+                        className="flex-1 px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-mono text-slate-800"
                       />
                       <input
                         type="text"
                         value={row.value}
                         onChange={(e) => updateHeaderRow(idx, 'value', e.target.value)}
                         placeholder="Value"
-                        className="flex-1 px-3 py-2 bg-slate-950/85 border border-slate-850 rounded-xl text-xs font-mono text-slate-100"
+                        className="flex-1 px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-mono text-slate-800"
                       />
                       <button
                         type="button"
                         onClick={() => removeHeaderRow(idx)}
-                        className="p-1.5 hover:text-rose-500 text-slate-500 border border-slate-850 bg-slate-900 rounded-md transition"
+                        className="p-1.5 hover:text-rose-600 text-slate-500 border border-slate-200 bg-white hover:bg-slate-50 rounded-md transition shadow-sm"
                       >
                         <X className="w-4 h-4" />
                       </button>
@@ -683,14 +682,14 @@ export default function SuiteDetail() {
                 {/* Body Area */}
                 {formData.config.method !== 'GET' && (
                   <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Request Body (JSON)</label>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-550 mb-1">Request Body (JSON)</label>
                     <textarea
                       value={formData.config.body}
                       onChange={(e) => setFormData({
                         ...formData,
                         config: { ...formData.config, body: e.target.value }
                       })}
-                      className="w-full px-3.5 py-2.5 bg-slate-950/80 border border-slate-850 rounded-xl focus:outline-none focus:border-indigo-500 text-xs font-mono h-24 text-slate-100 focus:ring-1 focus:ring-indigo-500 transition-all resize-none"
+                      className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-500 text-xs font-mono h-24 text-slate-800 focus:ring-1 focus:ring-indigo-500 transition-all resize-none"
                       placeholder='{ "key": "value" }'
                     />
                   </div>
@@ -699,12 +698,12 @@ export default function SuiteDetail() {
 
               {/* Load Configuration */}
               {suite?.test_type === 'load' && (
-                <div className="border-t border-slate-850 pt-6 space-y-4">
-                  <h3 className="font-bold text-slate-300 text-sm">Concurrency Load Settings</h3>
+                <div className="border-t border-slate-200 pt-6 space-y-4">
+                  <h3 className="font-bold text-slate-800 text-sm">Concurrency Load Settings</h3>
                   
                   {/* Presets Grid */}
                   <div className="space-y-2">
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-400">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-550">
                       Select Load Profile Preset
                     </label>
                     <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
@@ -721,8 +720,8 @@ export default function SuiteDetail() {
                           }}
                           className={`px-3 py-2 text-xs font-semibold rounded-lg border transition capitalize text-center ${
                             selectedPreset === preset
-                              ? 'bg-indigo-500/10 border-indigo-500/30 text-indigo-400 shadow-sm font-bold'
-                              : 'bg-slate-950 border-slate-850 hover:bg-slate-900 text-slate-400 hover:text-slate-200'
+                              ? 'bg-indigo-50 border-indigo-200 text-indigo-650 shadow-sm font-bold'
+                              : 'bg-white border-slate-200 hover:bg-slate-50 text-slate-600 hover:text-slate-800'
                           }`}
                         >
                           {preset === 'smoke' ? 'Smoke Check' :
@@ -733,7 +732,7 @@ export default function SuiteDetail() {
                       ))}
                     </div>
                     
-                    <div className="p-3 bg-slate-900/30 rounded-xl border border-slate-850 text-xs text-slate-450 leading-relaxed font-semibold">
+                    <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-600 leading-relaxed font-semibold">
                       {selectedPreset === 'smoke' && (
                         <p><strong>Smoke Check:</strong> Validates endpoint health and basic responsiveness with minimal traffic (2 Simulated VUs, 5 RPS limit, 15s duration).</p>
                       )}
@@ -754,56 +753,56 @@ export default function SuiteDetail() {
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Simulated Virtual Users (VUs)</label>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-550 mb-1">Simulated Virtual Users (VUs)</label>
                       <input
                         type="number"
                         value={formData.config.load.vus}
                         onChange={(e) => handleLoadChange('vus', Number(e.target.value))}
-                        className="w-full px-3.5 py-2.5 bg-slate-950/80 border border-slate-850 rounded-xl focus:outline-none focus:border-indigo-500 text-sm text-slate-100"
+                        className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-500 text-sm text-slate-800"
                         min="1"
                         required
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Simulation Duration</label>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-550 mb-1">Simulation Duration</label>
                       <input
                         type="text"
                         value={formData.config.load.duration}
                         onChange={(e) => handleLoadChange('duration', e.target.value)}
-                        className="w-full px-3.5 py-2.5 bg-slate-950/80 border border-slate-850 rounded-xl focus:outline-none focus:border-indigo-500 text-sm text-slate-100"
+                        className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-500 text-sm text-slate-800"
                         placeholder="e.g. 30s, 2m, 1h"
                         required
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Rate Limiter (RPS, 0 = Uncapped)</label>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-550 mb-1">Rate Limiter (RPS, 0 = Uncapped)</label>
                       <input
                         type="number"
                         value={formData.config.load.rate_limit_rps}
                         onChange={(e) => handleLoadChange('rate_limit_rps', Number(e.target.value))}
-                        className="w-full px-3.5 py-2.5 bg-slate-950/80 border border-slate-850 rounded-xl focus:outline-none focus:border-indigo-500 text-sm text-slate-100"
+                        className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-500 text-sm text-slate-800"
                         min="0"
                         required
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Ramp Up Phase</label>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-550 mb-1">Ramp Up Phase</label>
                       <input
                         type="text"
                         value={formData.config.load.ramp_up}
                         onChange={(e) => handleLoadChange('ramp_up', e.target.value)}
-                        className="w-full px-3.5 py-2.5 bg-slate-950/80 border border-slate-850 rounded-xl focus:outline-none focus:border-indigo-500 text-sm text-slate-100"
+                        className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-500 text-sm text-slate-800"
                         placeholder="e.g. 5s"
                         required
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Ramp Down Phase</label>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-slate-550 mb-1">Ramp Down Phase</label>
                       <input
                         type="text"
                         value={formData.config.load.ramp_down}
                         onChange={(e) => handleLoadChange('ramp_down', e.target.value)}
-                        className="w-full px-3.5 py-2.5 bg-slate-950/80 border border-slate-850 rounded-xl focus:outline-none focus:border-indigo-500 text-sm text-slate-100"
+                        className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-500 text-sm text-slate-800"
                         placeholder="e.g. 5s"
                         required
                       />
@@ -813,13 +812,13 @@ export default function SuiteDetail() {
               )}
 
               {/* Assertions */}
-              <div className="border-t border-slate-850 pt-6 space-y-4">
+              <div className="border-t border-slate-200 pt-6 space-y-4">
                 <div className="flex items-center justify-between">
-                  <h3 className="font-bold text-slate-350 text-sm">Service Level Objectives (SLOs)</h3>
+                  <h3 className="font-bold text-slate-800 text-sm">Service Level Objectives (SLOs)</h3>
                   <button
                     type="button"
                     onClick={addAssertionRow}
-                    className="text-xs text-indigo-400 hover:text-indigo-300 font-bold"
+                    className="text-xs text-indigo-600 hover:text-indigo-850 font-bold"
                   >
                     + Add SLO/Assertion
                   </button>
@@ -830,7 +829,7 @@ export default function SuiteDetail() {
                       <select
                         value={row.type}
                         onChange={(e) => updateAssertionRow(idx, 'type', e.target.value)}
-                        className="px-3.5 py-2 bg-slate-950/90 border border-slate-850 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-indigo-500 font-semibold cursor-pointer"
+                        className="px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-700 focus:outline-none focus:border-indigo-500 font-semibold cursor-pointer"
                       >
                         {suite?.test_type === 'load' ? (
                           <>
@@ -854,13 +853,13 @@ export default function SuiteDetail() {
                         value={row.expected}
                         onChange={(e) => updateAssertionRow(idx, 'expected', e.target.value)}
                         placeholder="Expected value (e.g. 500, 0.02)"
-                        className="flex-1 px-3.5 py-2 bg-slate-950/85 border border-slate-850 rounded-xl text-xs font-mono text-slate-100"
+                        className="flex-1 px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-mono text-slate-800"
                         required
                       />
                       <button
                         type="button"
                         onClick={() => removeAssertionRow(idx)}
-                        className="p-1.5 hover:text-rose-500 text-slate-500 border border-slate-850 bg-slate-900 rounded-md transition"
+                        className="p-1.5 hover:text-rose-600 text-slate-500 border border-slate-200 bg-white hover:bg-slate-50 rounded-md transition shadow-sm"
                       >
                         <X className="w-4 h-4" />
                       </button>
@@ -870,12 +869,12 @@ export default function SuiteDetail() {
               </div>
             </form>
 
-            <div className="px-6 py-4 bg-slate-900/30 border-t border-slate-850 flex items-center justify-between rounded-b-2xl">
+            <div className="px-6 py-4 bg-slate-50/50 border-t border-slate-200 flex items-center justify-between rounded-b-2xl">
               {editingCase ? (
                 <button
                   type="button"
                   onClick={() => handleDelete(editingCase.id)}
-                  className="flex items-center gap-1.5 text-sm font-semibold text-rose-550 hover:text-rose-400 transition"
+                  className="flex items-center gap-1.5 text-sm font-semibold text-rose-600 hover:text-rose-800 transition"
                 >
                   <Trash2 className="w-4 h-4" />
                   Delete Endpoint
@@ -887,13 +886,13 @@ export default function SuiteDetail() {
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="px-4 py-2 border border-slate-800 text-slate-400 text-sm font-semibold rounded-xl hover:bg-slate-850 hover:text-slate-200 transition"
+                  className="px-4 py-2 border border-slate-205 text-slate-600 text-sm font-semibold rounded-xl hover:bg-slate-100 hover:text-slate-805 transition"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleSave}
-                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl shadow-md shadow-indigo-500/10 transition"
+                  className="px-4 py-2 bg-indigo-650 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl shadow-md shadow-indigo-500/10 transition"
                 >
                   Save Configuration
                 </button>

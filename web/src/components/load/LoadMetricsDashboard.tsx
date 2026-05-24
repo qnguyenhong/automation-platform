@@ -158,22 +158,22 @@ export default function LoadMetricsDashboard({ runId, isRunning }: DashboardProp
     }))
   }, [metrics])
 
-  const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#a855f7', '#64748b']
+  const COLORS = ['#6366F1', '#10B981', '#F59E0B', '#EF4444', '#A855F7', '#64748B']
 
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center h-64 space-y-4">
-        <div className="w-12 h-12 border-4 border-slate-800 border-t-indigo-500 rounded-full animate-spin"></div>
-        <p className="text-slate-400 font-medium animate-pulse">Retrieving execution metrics...</p>
+        <div className="w-12 h-12 border-4 border-slate-200 border-t-indigo-500 rounded-full animate-spin"></div>
+        <p className="text-slate-500 font-medium animate-pulse">Retrieving execution metrics...</p>
       </div>
     )
   }
 
   if (!stats) {
     return (
-      <div className="glass-panel rounded-xl border border-slate-850 p-8 text-center text-slate-500">
-        <Activity className="w-12 h-12 mx-auto mb-3 text-slate-650 animate-pulse" />
-        <p className="font-semibold text-slate-400">Awaiting execution metrics stream...</p>
+      <div className="glass-panel rounded-xl border border-slate-200 p-8 text-center text-slate-500 shadow-sm">
+        <Activity className="w-12 h-12 mx-auto mb-3 text-slate-400 animate-pulse" />
+        <p className="font-semibold text-slate-700">Awaiting execution metrics stream...</p>
       </div>
     )
   }
@@ -182,9 +182,9 @@ export default function LoadMetricsDashboard({ runId, isRunning }: DashboardProp
     <div className="space-y-6">
       {/* Title / Realtime Badge */}
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400">Load Execution Analytics</h3>
+        <h3 className="text-sm font-bold uppercase tracking-wider text-slate-550">Load Execution Analytics</h3>
         {isRunning && (
-          <span className="flex items-center gap-1.5 px-3 py-1 text-xs font-semibold bg-emerald-500/10 text-emerald-450 border border-emerald-500/20 rounded-full">
+          <span className="flex items-center gap-1.5 px-3 py-1 text-xs font-semibold bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-full">
             <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
             Live Streaming Metrics
           </span>
@@ -194,73 +194,73 @@ export default function LoadMetricsDashboard({ runId, isRunning }: DashboardProp
       {/* Summary KPI Cards Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         {/* Total Requests */}
-        <div className="glass-panel p-5 rounded-xl border border-slate-850 flex flex-col justify-between">
+        <div className="glass-panel p-5 rounded-xl border border-slate-200/60 flex flex-col justify-between shadow-sm">
           <div className="flex items-center justify-between text-slate-500">
             <span className="text-[10px] font-bold uppercase tracking-wider">Total Requests</span>
-            <Database className="w-4 h-4 text-indigo-400" />
+            <Database className="w-4 h-4 text-indigo-500" />
           </div>
           <div className="mt-2.5">
-            <h4 className="text-2xl font-bold text-slate-100 font-mono">{stats.totalRequests.toLocaleString()}</h4>
+            <h4 className="text-2xl font-bold text-slate-800 font-mono">{stats.totalRequests.toLocaleString()}</h4>
             <span className="text-[10px] text-slate-500 font-medium">requests sent</span>
           </div>
         </div>
 
         {/* Avg Throughput */}
-        <div className="glass-panel p-5 rounded-xl border border-slate-850 flex flex-col justify-between">
+        <div className="glass-panel p-5 rounded-xl border border-slate-200/60 flex flex-col justify-between shadow-sm">
           <div className="flex items-center justify-between text-slate-500">
             <span className="text-[10px] font-bold uppercase tracking-wider">Avg Throughput</span>
-            <Activity className="w-4 h-4 text-emerald-400" />
+            <Activity className="w-4 h-4 text-emerald-500" />
           </div>
           <div className="mt-2.5">
-            <h4 className="text-2xl font-bold text-emerald-450 font-mono">{stats.avgRps}</h4>
+            <h4 className="text-2xl font-bold text-emerald-600 font-mono">{stats.avgRps}</h4>
             <span className="text-[10px] text-slate-500 font-medium">req / sec (RPS)</span>
           </div>
         </div>
 
         {/* P95 Latency */}
-        <div className="glass-panel p-5 rounded-xl border border-slate-850 flex flex-col justify-between">
+        <div className="glass-panel p-5 rounded-xl border border-slate-200/60 flex flex-col justify-between shadow-sm">
           <div className="flex items-center justify-between text-slate-500">
             <span className="text-[10px] font-bold uppercase tracking-wider">P95 Latency</span>
-            <Clock className="w-4 h-4 text-amber-400" />
+            <Clock className="w-4 h-4 text-amber-500" />
           </div>
           <div className="mt-2.5">
-            <h4 className="text-2xl font-bold text-amber-400 font-mono">{stats.p95} <span className="text-xs font-normal text-slate-500">ms</span></h4>
+            <h4 className="text-2xl font-bold text-amber-600 font-mono">{stats.p95} <span className="text-xs font-normal text-slate-500">ms</span></h4>
             <span className="text-[10px] text-slate-500 font-medium">95% response limit</span>
           </div>
         </div>
 
         {/* Avg Latency */}
-        <div className="glass-panel p-5 rounded-xl border border-slate-850 flex flex-col justify-between">
+        <div className="glass-panel p-5 rounded-xl border border-slate-200/60 flex flex-col justify-between shadow-sm">
           <div className="flex items-center justify-between text-slate-500">
             <span className="text-[10px] font-bold uppercase tracking-wider">Avg Latency</span>
-            <Clock className="w-4 h-4 text-indigo-400" />
+            <Clock className="w-4 h-4 text-indigo-500" />
           </div>
           <div className="mt-2.5">
-            <h4 className="text-2xl font-bold text-slate-100 font-mono">{stats.avgLatency}</h4>
+            <h4 className="text-2xl font-bold text-slate-800 font-mono">{stats.avgLatency}</h4>
             <span className="text-[10px] text-slate-500 font-medium">average response</span>
           </div>
         </div>
 
         {/* Error Rate */}
-        <div className="glass-panel p-5 rounded-xl border border-slate-850 flex flex-col justify-between">
+        <div className="glass-panel p-5 rounded-xl border border-slate-200/60 flex flex-col justify-between shadow-sm">
           <div className="flex items-center justify-between text-slate-500">
             <span className="text-[10px] font-bold uppercase tracking-wider">Error Rate</span>
-            <AlertTriangle className="w-4 h-4 text-rose-455" />
+            <AlertTriangle className="w-4 h-4 text-rose-500" />
           </div>
           <div className="mt-2.5">
-            <h4 className={`text-2xl font-bold font-mono ${stats.errorRate !== '0.00%' && stats.errorRate !== '0.0%' ? 'text-rose-500' : 'text-slate-100'}`}>{stats.errorRate}</h4>
+            <h4 className={`text-2xl font-bold font-mono ${stats.errorRate !== '0.00%' && stats.errorRate !== '0.0%' ? 'text-rose-600' : 'text-slate-800'}`}>{stats.errorRate}</h4>
             <span className="text-[10px] text-slate-500 font-medium">failed requests</span>
           </div>
         </div>
 
         {/* Bytes Transferred */}
-        <div className="glass-panel p-5 rounded-xl border border-slate-850 flex flex-col justify-between">
+        <div className="glass-panel p-5 rounded-xl border border-slate-200/60 flex flex-col justify-between shadow-sm">
           <div className="flex items-center justify-between text-slate-500">
             <span className="text-[10px] font-bold uppercase tracking-wider">Transferred</span>
-            <ArrowUpRight className="w-4 h-4 text-sky-400" />
+            <ArrowUpRight className="w-4 h-4 text-sky-500" />
           </div>
           <div className="mt-2.5">
-            <h4 className="text-2xl font-bold text-slate-100 font-mono">{stats.totalBytes}</h4>
+            <h4 className="text-2xl font-bold text-slate-800 font-mono">{stats.totalBytes}</h4>
             <span className="text-[10px] text-slate-500 font-medium">total payload size</span>
           </div>
         </div>
@@ -269,26 +269,26 @@ export default function LoadMetricsDashboard({ runId, isRunning }: DashboardProp
       {/* Main Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Throughput chart */}
-        <div className="glass-panel p-6 rounded-xl border border-slate-850">
-          <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Throughput Over Time</h4>
+        <div className="glass-panel p-6 rounded-xl border border-slate-200/60 shadow-sm">
+          <h4 className="text-xs font-bold text-slate-550 uppercase tracking-wider mb-4">Throughput Over Time</h4>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={throughputData}>
                 <defs>
                   <linearGradient id="colorRps" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.25}/>
+                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.12}/>
                     <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" vertical={false} />
                 <XAxis dataKey="second" stroke="#64748B" fontSize={11} tickLine={false} />
                 <YAxis stroke="#64748B" fontSize={11} tickLine={false} />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: '#121826',
-                    borderColor: 'rgba(255, 255, 255, 0.08)',
+                    backgroundColor: '#FFFFFF',
+                    borderColor: '#E2E8F0',
                     borderRadius: '10px',
-                    color: '#F1F5F9',
+                    color: '#1E293B',
                     fontSize: '12px',
                   }}
                 />
@@ -299,26 +299,26 @@ export default function LoadMetricsDashboard({ runId, isRunning }: DashboardProp
         </div>
 
         {/* Latency over time */}
-        <div className="glass-panel p-6 rounded-xl border border-slate-850">
-          <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">P95 Latency Over Time</h4>
+        <div className="glass-panel p-6 rounded-xl border border-slate-200/60 shadow-sm">
+          <h4 className="text-xs font-bold text-slate-550 uppercase tracking-wider mb-4">P95 Latency Over Time</h4>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={latencyData}>
                 <defs>
                   <linearGradient id="colorLatency" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.25}/>
+                    <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.12}/>
                     <stop offset="95%" stopColor="#f59e0b" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" vertical={false} />
                 <XAxis dataKey="second" stroke="#64748B" fontSize={11} tickLine={false} />
                 <YAxis stroke="#64748B" fontSize={11} tickLine={false} unit="ms" />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: '#121826',
-                    borderColor: 'rgba(255, 255, 255, 0.08)',
+                    backgroundColor: '#FFFFFF',
+                    borderColor: '#E2E8F0',
                     borderRadius: '10px',
-                    color: '#F1F5F9',
+                    color: '#1E293B',
                     fontSize: '12px',
                   }}
                 />
@@ -332,20 +332,20 @@ export default function LoadMetricsDashboard({ runId, isRunning }: DashboardProp
         {!isRunning && metrics && (
           <>
             {/* Latency Percentiles Histogram */}
-            <div className="glass-panel p-6 rounded-xl border border-slate-850">
-              <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Latency Profile Distribution</h4>
+            <div className="glass-panel p-6 rounded-xl border border-slate-200/60 shadow-sm">
+              <h4 className="text-xs font-bold text-slate-550 uppercase tracking-wider mb-4">Latency Profile Distribution</h4>
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={latencyProfileData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" vertical={false} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" vertical={false} />
                     <XAxis dataKey="name" stroke="#64748B" fontSize={11} tickLine={false} />
                     <YAxis stroke="#64748B" fontSize={11} tickLine={false} unit="ms" />
                     <Tooltip
                       contentStyle={{
-                        backgroundColor: '#121826',
-                        borderColor: 'rgba(255, 255, 255, 0.08)',
+                        backgroundColor: '#FFFFFF',
+                        borderColor: '#E2E8F0',
                         borderRadius: '10px',
-                        color: '#F1F5F9',
+                        color: '#1E293B',
                         fontSize: '12px',
                       }}
                       formatter={(value) => [`${value} ms`, 'Latency']}
@@ -361,20 +361,20 @@ export default function LoadMetricsDashboard({ runId, isRunning }: DashboardProp
             </div>
 
             {/* Status Codes Distribution */}
-            <div className="glass-panel p-6 rounded-xl border border-slate-850">
-              <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">HTTP Status Distribution</h4>
+            <div className="glass-panel p-6 rounded-xl border border-slate-200/60 shadow-sm">
+              <h4 className="text-xs font-bold text-slate-550 uppercase tracking-wider mb-4">HTTP Status Distribution</h4>
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={statusCodeData} layout="vertical">
-                    <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" horizontal={false} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" horizontal={false} />
                     <XAxis type="number" stroke="#64748B" fontSize={11} tickLine={false} />
                     <YAxis type="category" dataKey="name" stroke="#64748B" fontSize={11} tickLine={false} />
                     <Tooltip
                       contentStyle={{
-                        backgroundColor: '#121826',
-                        borderColor: 'rgba(255, 255, 255, 0.08)',
+                        backgroundColor: '#FFFFFF',
+                        borderColor: '#E2E8F0',
                         borderRadius: '10px',
-                        color: '#F1F5F9',
+                        color: '#1E293B',
                         fontSize: '12px',
                       }}
                     />

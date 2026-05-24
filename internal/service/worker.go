@@ -3,6 +3,9 @@ package service
 import (
 	"context"
 	"fmt"
+	"log/slog"
+	"net/http"
+	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -41,7 +44,96 @@ func (s *WorkerService) SetDispatcher(dispatcher interface{ Dequeue() *model.Wor
 	s.dispatcher = dispatcher
 }
 
+func pingWorker(hostname, ipAddress string) error {
+	port := "9090"
+	if envPort := os.Getenv("WORKER_PING_PORT"); envPort != "" {
+		port = envPort
+	}
+
+	targets := []string{ipAddress, hostname}
+	var lastErr error
+
+	for _, target := range targets {
+		if target == "" {
+			continue
+		}
+		pingURL := fmt.Sprintf("http://%s:%s/ping", target, port)
+		client := &http.Client{Timeout: 3 * time.Second}
+		resp, err := client.Get(pingURL)
+		if err == nil {
+			resp.Body.Close()
+			if resp.StatusCode == http.StatusOK {
+				return nil
+			}
+			lastErr = fmt.Errorf("status code: %d", resp.StatusCode)
+		} else {
+			lastErr = err
+		}
+	}
+
+	if lastErr != nil {
+		return fmt.Errorf("failed to ping worker on targets %v: %w", targets, lastErr)
+	}
+	return fmt.Errorf("no target to ping")
+}
+
+func (s *WorkerService) StartHealthCheck(ctx context.Context, logger *slog.Logger) {
+	ticker := time.NewTicker(10 * time.Second)
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				ticker.Stop()
+				return
+			case <-ticker.C:
+				s.checkWorkers(ctx, logger)
+			}
+		}
+	}()
+}
+
+func (s *WorkerService) checkWorkers(ctx context.Context, logger *slog.Logger) {
+	workers, err := s.repo.List(ctx)
+	if err != nil {
+		logger.Error("failed to list workers for health check", "error", err)
+		return
+	}
+
+	for _, w := range workers {
+		workerAddr := w.Hostname
+		ipAddr := ""
+		if w.IPAddress != nil {
+			ipAddr = *w.IPAddress
+		}
+
+		isLive := false
+		err := pingWorker(workerAddr, ipAddr)
+		if err == nil {
+			isLive = true
+		}
+
+		// Fallback check: last heartbeat within 30 seconds
+		if !isLive && w.LastHeartbeat != nil {
+			if time.Since(*w.LastHeartbeat) < 30*time.Second {
+				isLive = true
+			}
+		}
+
+		if !isLive {
+			logger.Warn("worker is not live, removing it", "id", w.ID, "name", w.Name, "hostname", workerAddr)
+			if err := s.repo.Delete(ctx, w.ID); err != nil {
+				logger.Error("failed to delete non-live worker", "id", w.ID, "error", err)
+			}
+		}
+	}
+}
+
 func (s *WorkerService) Register(ctx context.Context, req model.RegisterWorkerRequest) (*model.Worker, string, error) {
+	// Active ping-pong check before registering
+	if err := pingWorker(req.Hostname, req.IPAddress); err != nil {
+		return nil, "", errors.NewAppError("VALIDATION", fmt.Sprintf("worker is not active or did not respond to ping: %v", err), nil)
+	}
+
 	version := &req.Version
 	if req.Version == "" {
 		version = nil

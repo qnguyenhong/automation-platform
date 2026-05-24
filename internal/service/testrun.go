@@ -14,6 +14,7 @@ import (
 type TestRunRepository interface {
 	Create(ctx context.Context, suiteID, projectID uuid.UUID, status, trigger string, triggeredBy *uuid.UUID, totalCases int, metadata []byte) (*model.TestRun, error)
 	GetByID(ctx context.Context, id uuid.UUID) (*model.TestRun, error)
+	ListAll(ctx context.Context, limit, offset int) ([]model.TestRun, int64, error)
 	ListByProject(ctx context.Context, projectID uuid.UUID, limit, offset int) ([]model.TestRun, int64, error)
 	ListBySuite(ctx context.Context, suiteID uuid.UUID, limit, offset int) ([]model.TestRun, int64, error)
 	UpdateStatus(ctx context.Context, id uuid.UUID, status string, startedAt, finishedAt *time.Time, durationMS *int64) (*model.TestRun, error)
@@ -141,6 +142,11 @@ func (s *TestRunService) Get(ctx context.Context, id uuid.UUID) (*model.TestRun,
 func (s *TestRunService) ListByProject(ctx context.Context, projectID uuid.UUID, page, perPage int) ([]model.TestRun, int64, error) {
 	offset := (page - 1) * perPage
 	return s.runRepo.ListByProject(ctx, projectID, perPage, offset)
+}
+
+func (s *TestRunService) ListAll(ctx context.Context, page, perPage int) ([]model.TestRun, int64, error) {
+	offset := (page - 1) * perPage
+	return s.runRepo.ListAll(ctx, perPage, offset)
 }
 
 func (s *TestRunService) Cancel(ctx context.Context, id uuid.UUID) error {
