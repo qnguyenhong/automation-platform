@@ -15,5 +15,10 @@ type Deps struct {
 	WorkerSvc     *service.WorkerService
 	DashboardSvc  *service.DashboardService
 	OpenAPISvc    *service.OpenAPIService
+	EnvSvc        *service.EnvironmentService
+	DatasetSvc    *service.DatasetService
+	WebhookSvc    *service.WebhookService
+	ExportSvc     *service.ExportService
+	LoadRepo      service.LoadMetricsRepository
 	Hub           *ws.Hub
 }

@@ -39,6 +39,7 @@ func main() {
 	workerRepo := repository.NewWorkerRepo(pool)
 	dashboardRepo := repository.NewDashboardRepo(pool)
 	openapiRepo := repository.NewOpenAPIRepo(pool)
+	loadRepo := repository.NewLoadMetricsRepo(pool)
 
 	// Services
 	authSvc := service.NewAuthService(userRepo, cfg.Auth.JWTSecret, cfg.Auth.JWTExpiry)
@@ -49,7 +50,8 @@ func main() {
 	dashboardSvc := service.NewDashboardService(dashboardRepo)
 
 	dispatcher := service.NewDispatcher(lg, workerSvc, 100)
-	runSvc := service.NewTestRunService(runRepo, resultRepo, suiteRepo, caseRepo, dispatcher)
+	workerSvc.SetDispatcher(dispatcher)
+	runSvc := service.NewTestRunService(runRepo, resultRepo, suiteRepo, caseRepo, loadRepo, dispatcher)
 
 	openapiSvc := service.NewOpenAPIService(openapiRepo, suiteSvc, caseSvc)
 
@@ -67,6 +69,7 @@ func main() {
 		WorkerSvc:    workerSvc,
 		DashboardSvc: dashboardSvc,
 		OpenAPISvc:   openapiSvc,
+		LoadRepo:     loadRepo,
 		Hub:          hub,
 	})
 

@@ -37,6 +37,7 @@ type Dependencies struct {
 	WorkerSvc    *service.WorkerService
 	DashboardSvc *service.DashboardService
 	OpenAPISvc   *service.OpenAPIService
+	LoadRepo     service.LoadMetricsRepository
 	Hub          *ws.Hub
 }
 
@@ -53,6 +54,7 @@ func New(deps *Dependencies) *Server {
 		WorkerSvc:    deps.WorkerSvc,
 		DashboardSvc: deps.DashboardSvc,
 		OpenAPISvc:   deps.OpenAPISvc,
+		LoadRepo:     deps.LoadRepo,
 		Hub:          deps.Hub,
 	}
 

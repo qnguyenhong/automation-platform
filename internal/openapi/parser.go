@@ -99,6 +99,10 @@ func (p *Parser) ParseAndExtract(data []byte) (*ParsedSpec, error) {
 		return nil, err
 	}
 
+	// Resolve $ref references
+	resolver := NewResolver(spec)
+	p.resolveSpec(spec, resolver)
+
 	endpoints := p.ExtractEndpoints(spec)
 
 	baseURL := ""
@@ -106,13 +110,55 @@ func (p *Parser) ParseAndExtract(data []byte) (*ParsedSpec, error) {
 		baseURL = strings.TrimSuffix(spec.Servers[0].URL, "/")
 	}
 
+	// Extract security schemes
+	securitySchemes := ExtractSecuritySchemes(spec)
+
 	return &ParsedSpec{
-		Title:       spec.Info.Title,
-		Description: spec.Info.Description,
-		Version:     spec.Info.Version,
-		BaseURL:     baseURL,
-		Endpoints:   endpoints,
+		Title:           spec.Info.Title,
+		Description:     spec.Info.Description,
+		Version:         spec.Info.Version,
+		BaseURL:         baseURL,
+		Endpoints:       endpoints,
+		SecuritySchemes: securitySchemes,
 	}, nil
+}
+
+// resolveSpec resolves all $ref references in the spec's paths.
+func (p *Parser) resolveSpec(spec *Spec, resolver *Resolver) {
+	for path, pathItem := range spec.Paths {
+		if pathItem.Get != nil {
+			p.resolveOperation(pathItem.Get, resolver)
+		}
+		if pathItem.Post != nil {
+			p.resolveOperation(pathItem.Post, resolver)
+		}
+		if pathItem.Put != nil {
+			p.resolveOperation(pathItem.Put, resolver)
+		}
+		if pathItem.Delete != nil {
+			p.resolveOperation(pathItem.Delete, resolver)
+		}
+		if pathItem.Patch != nil {
+			p.resolveOperation(pathItem.Patch, resolver)
+		}
+		spec.Paths[path] = pathItem
+	}
+}
+
+// resolveOperation resolves $ref in all parts of an operation.
+func (p *Parser) resolveOperation(op *Operation, resolver *Resolver) {
+	// Resolve parameters
+	for i, param := range op.Parameters {
+		op.Parameters[i] = resolver.ResolveParameter(param)
+	}
+
+	// Resolve request body
+	if op.RequestBody != nil {
+		op.RequestBody = resolver.ResolveRequestBody(op.RequestBody)
+	}
+
+	// Resolve responses
+	op.Responses = resolver.ResolveResponses(op.Responses)
 }
 
 // mergeParameters merges path-level and operation-level parameters.

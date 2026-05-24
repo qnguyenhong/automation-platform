@@ -2,11 +2,13 @@ package openapi
 
 // Spec represents a minimal OpenAPI 3.x specification.
 type Spec struct {
-	OpenAPI string                 `json:"openapi" yaml:"openapi"`
-	Info    Info                   `json:"info" yaml:"info"`
-	Servers []Server               `json:"servers,omitempty" yaml:"servers,omitempty"`
-	Paths   map[string]PathItem    `json:"paths" yaml:"paths"`
-	Tags    []Tag                  `json:"tags,omitempty" yaml:"tags,omitempty"`
+	OpenAPI    string                 `json:"openapi" yaml:"openapi"`
+	Info       Info                   `json:"info" yaml:"info"`
+	Servers    []Server               `json:"servers,omitempty" yaml:"servers,omitempty"`
+	Paths      map[string]PathItem    `json:"paths" yaml:"paths"`
+	Tags       []Tag                  `json:"tags,omitempty" yaml:"tags,omitempty"`
+	Components *Components            `json:"components,omitempty" yaml:"components,omitempty"`
+	Security   []map[string][]string  `json:"security,omitempty" yaml:"security,omitempty"`
 }
 
 // Info contains metadata about the API.
@@ -120,9 +122,31 @@ type Endpoint struct {
 
 // ParsedSpec is the result of parsing an OpenAPI spec.
 type ParsedSpec struct {
-	Title       string     `json:"title"`
-	Description string     `json:"description"`
-	Version     string     `json:"version"`
-	BaseURL     string     `json:"base_url"`
-	Endpoints   []Endpoint `json:"endpoints"`
+	Title           string           `json:"title"`
+	Description     string           `json:"description"`
+	Version         string           `json:"version"`
+	BaseURL         string           `json:"base_url"`
+	Endpoints       []Endpoint       `json:"endpoints"`
+	SecuritySchemes []SecurityScheme `json:"security_schemes,omitempty"`
+}
+
+// Components holds reusable objects for the specification.
+type Components struct {
+	Schemas         map[string]Schema         `json:"schemas,omitempty" yaml:"schemas,omitempty"`
+	SecuritySchemes map[string]SecurityScheme `json:"securitySchemes,omitempty" yaml:"securitySchemes,omitempty"`
+	Parameters      map[string]Parameter      `json:"parameters,omitempty" yaml:"parameters,omitempty"`
+	RequestBodies   map[string]RequestBody    `json:"requestBodies,omitempty" yaml:"requestBodies,omitempty"`
+	Responses       map[string]Response       `json:"responses,omitempty" yaml:"responses,omitempty"`
+}
+
+// SecurityScheme describes an authentication method.
+type SecurityScheme struct {
+	Name             string `json:"name" yaml:"name"`
+	Type             string `json:"type" yaml:"type"` // apiKey, http, oauth2, openIdConnect
+	Scheme           string `json:"scheme,omitempty" yaml:"scheme,omitempty"` // bearer, basic
+	BearerFormat     string `json:"bearerFormat,omitempty" yaml:"bearerFormat,omitempty"`
+	In               string `json:"in,omitempty" yaml:"in,omitempty"` // header, query, cookie
+	ParameterName    string `json:"parameterName,omitempty" yaml:"parameterName,omitempty"`
+	Description      string `json:"description,omitempty" yaml:"description,omitempty"`
+	HeaderTemplate   string `json:"header_template,omitempty"` // Generated: e.g., "Authorization: Bearer {{token}}"
 }

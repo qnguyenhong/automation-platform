@@ -101,6 +101,7 @@ func (a *Agent) register(ctx context.Context) error {
 
 	a.workerID = result.Data.Worker.ID
 	a.token = result.Data.Token
+	a.registry.SetToken(a.token)
 	return nil
 }
 

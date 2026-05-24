@@ -1,0 +1,1558 @@
+openapi: "3.0.3"
+info:
+  title: Automation Platform API
+  description: |
+    Test automation platform API for managing projects, test suites, test cases,
+    environments, test runs, workers, and OpenAPI imports.
+
+    ## Authentication
+    All protected endpoints require one of:
+    - **Bearer Token**: `Authorization: Bearer <jwt_token>`
+    - **API Key**: `X-API-Key: <api_key>`
+
+    ## Webhook Triggers
+    External systems can trigger test runs via the webhook endpoint using a secret token.
+  version: "1.0.0"
+  contact:
+    name: Automation Platform Team
+
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Local development
+
+tags:
+  - name: Auth
+    description: Authentication and user management
+  - name: Projects
+    description: Project management
+  - name: Environments
+    description: Environment configuration (base URLs, variables)
+  - name: Test Suites
+    description: Test suite management
+  - name: Test Cases
+    description: Test case management
+  - name: Test Runs
+    description: Test execution and results
+  - name: Workers
+    description: Worker management
+  - name: Datasets
+    description: Data-driven testing datasets
+  - name: Webhooks
+    description: Webhook configuration and triggering
+  - name: OpenAPI
+    description: OpenAPI spec import and parsing
+  - name: Export
+    description: Export test suites to various formats
+  - name: Dashboard
+    description: Dashboard metrics and analytics
+  - name: Notifications
+    description: Notification configuration
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        code:
+          type: string
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        role:
+          type: string
+          enum: [admin, member, viewer]
+        api_key:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Project:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        created_by:
+          type: string
+          format: uuid
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Environment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        project_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: "production"
+        base_url:
+          type: string
+          format: uri
+          example: "https://api.example.com"
+        variables:
+          type: object
+          additionalProperties: true
+          example:
+            api_version: "v2"
+            timeout: "30"
+        headers:
+          type: object
+          additionalProperties:
+            type: string
+          example:
+            X-Custom-Header: "value"
+        is_default:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    TestSuite:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        project_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        test_type:
+          type: string
+          enum: [api, e2e, load, unit]
+        schedule_cron:
+          type: string
+          example: "@daily"
+        config:
+          type: object
+        tags:
+          type: array
+          items:
+            type: string
+        max_retries:
+          type: integer
+          default: 0
+        retry_delay_ms:
+          type: integer
+          default: 1000
+        parallel:
+          type: boolean
+          default: false
+        max_parallel:
+          type: integer
+          default: 5
+        timeout_ms:
+          type: integer
+          default: 300000
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    TestCase:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        suite_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        config:
+          type: object
+          description: |
+            Test case configuration. For API tests:
+            ```json
+            {
+              "method": "GET",
+              "url": "{{base_url}}/users",
+              "headers": {"Authorization": "Bearer {{token}}"},
+              "body": {"name": "{{$random_name()}}"},
+              "assertions": [
+                {"type": "status", "expected": 200},
+                {"type": "json_path", "path": "$.data.id", "expected": "{{user_id}}", "capture_as": "created_id"},
+                {"type": "response_time", "expected": 2000},
+                {"type": "header", "path": "Content-Type", "expected": "application/json"}
+              ],
+              "max_retries": 2
+            }
+            ```
+        tags:
+          type: array
+          items:
+            type: string
+        sort_order:
+          type: integer
+        enabled:
+          type: boolean
+        max_retries:
+          type: integer
+        timeout_ms:
+          type: integer
+        pre_script:
+          type: string
+          description: Script to run before the test
+        post_script:
+          type: string
+          description: Script to run after the test
+        dataset_id:
+          type: string
+          format: uuid
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    TestRun:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        suite_id:
+          type: string
+          format: uuid
+        project_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [pending, running, passed, failed, cancelled, error]
+        trigger:
+          type: string
+          enum: [manual, scheduled, api, ci]
+        triggered_by:
+          type: string
+          format: uuid
+        environment_id:
+          type: string
+          format: uuid
+        total_cases:
+          type: integer
+        passed:
+          type: integer
+        failed:
+          type: integer
+        skipped:
+          type: integer
+        errored:
+          type: integer
+        started_at:
+          type: string
+          format: date-time
+        finished_at:
+          type: string
+          format: date-time
+        duration_ms:
+          type: integer
+        metadata:
+          type: object
+        created_at:
+          type: string
+          format: date-time
+
+    TestResult:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        run_id:
+          type: string
+          format: uuid
+        case_id:
+          type: string
+          format: uuid
+        worker_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [pending, running, passed, failed, skipped, error]
+        error_message:
+          type: string
+        assertions:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+              expected:
+                {}
+              actual:
+                {}
+              passed:
+                type: boolean
+              message:
+                type: string
+        request_data:
+          type: object
+          properties:
+            method:
+              type: string
+            url:
+              type: string
+            headers:
+              type: object
+            body:
+              {}
+        response_data:
+          type: object
+          properties:
+            status:
+              type: integer
+            headers:
+              type: object
+            body:
+              {}
+        duration_ms:
+          type: integer
+        retry_of:
+          type: string
+          format: uuid
+        retry_count:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+
+    Worker:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        hostname:
+          type: string
+        ip_address:
+          type: string
+        executor_types:
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+          enum: [online, offline, busy, draining]
+        max_concurrent:
+          type: integer
+        version:
+          type: string
+        labels:
+          type: object
+        last_heartbeat:
+          type: string
+          format: date-time
+        registered_at:
+          type: string
+          format: date-time
+
+    Dataset:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        project_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        format:
+          type: string
+          enum: [json, csv]
+        data:
+          type: array
+          items:
+            type: object
+          description: Array of data rows for parameterized testing
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Webhook:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        project_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        secret:
+          type: string
+          description: Secret token for triggering (shown only on creation)
+        suite_id:
+          type: string
+          format: uuid
+        enabled:
+          type: boolean
+        last_triggered_at:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    ExportResponse:
+      type: object
+      properties:
+        filename:
+          type: string
+        content:
+          type: string
+          description: Exported content (JSON, shell script, or JS)
+        mime_type:
+          type: string
+
+    DashboardSummary:
+      type: object
+      properties:
+        total_runs:
+          type: integer
+        total_passed:
+          type: integer
+        total_failed:
+          type: integer
+        active_workers:
+          type: integer
+        pass_rate:
+          type: number
+
+    ParsedSpec:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        version:
+          type: string
+        base_url:
+          type: string
+        endpoints:
+          type: array
+          items:
+            $ref: '#/components/schemas/ParsedEndpoint'
+        security_schemes:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              type:
+                type: string
+              scheme:
+                type: string
+              header_template:
+                type: string
+                description: Auto-generated auth header template
+
+    ParsedEndpoint:
+      type: object
+      properties:
+        method:
+          type: string
+        path:
+          type: string
+        summary:
+          type: string
+        description:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        operation_id:
+          type: string
+        parameters:
+          type: array
+          items:
+            type: object
+        request_body:
+          type: object
+        responses:
+          type: object
+        deprecated:
+          type: boolean
+        base_url:
+          type: string
+
+security:
+  - BearerAuth: []
+  - ApiKeyAuth: []
+
+paths:
+  # ===== AUTH =====
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Login
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  user:
+                    $ref: '#/components/schemas/User'
+        "401":
+          description: Invalid credentials
+
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Register new user
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password, name]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 8
+                name:
+                  type: string
+                role:
+                  type: string
+                  enum: [admin, member, viewer]
+                  default: member
+      responses:
+        "201":
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  /auth/me:
+    get:
+      tags: [Auth]
+      summary: Get current user
+      responses:
+        "200":
+          description: Current user info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  # ===== PROJECTS =====
+  /projects:
+    get:
+      tags: [Projects]
+      summary: List all projects
+      responses:
+        "200":
+          description: List of projects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Project'
+    post:
+      tags: [Projects]
+      summary: Create a project
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+      responses:
+        "201":
+          description: Project created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+
+  /projects/{projectId}:
+    parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: [Projects]
+      summary: Get project by ID
+      responses:
+        "200":
+          description: Project details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+    put:
+      tags: [Projects]
+      summary: Update project
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+      responses:
+        "200":
+          description: Project updated
+    delete:
+      tags: [Projects]
+      summary: Delete project
+      responses:
+        "204":
+          description: Project deleted
+
+  # ===== ENVIRONMENTS =====
+  /projects/{projectId}/environments:
+    parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: [Environments]
+      summary: List environments for a project
+      responses:
+        "200":
+          description: List of environments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Environment'
+    post:
+      tags: [Environments]
+      summary: Create an environment
+      description: |
+        Create a new environment with base URL and variables.
+        Variables can be referenced in test cases using `{{variable_name}}` syntax.
+        Headers defined here are automatically added to all requests in this environment.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, base_url]
+              properties:
+                name:
+                  type: string
+                  example: "staging"
+                base_url:
+                  type: string
+                  format: uri
+                  example: "https://staging-api.example.com"
+                variables:
+                  type: object
+                  example:
+                    api_key: "test-key-123"
+                    timeout: "5000"
+                headers:
+                  type: object
+                  example:
+                    X-Environment: "staging"
+                is_default:
+                  type: boolean
+      responses:
+        "201":
+          description: Environment created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Environment'
+
+  /projects/{projectId}/environments/{envId}:
+    parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: envId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: [Environments]
+      summary: Get environment
+      responses:
+        "200":
+          description: Environment details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Environment'
+    put:
+      tags: [Environments]
+      summary: Update environment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                base_url:
+                  type: string
+                variables:
+                  type: object
+                headers:
+                  type: object
+                is_default:
+                  type: boolean
+      responses:
+        "200":
+          description: Environment updated
+    delete:
+      tags: [Environments]
+      summary: Delete environment
+      responses:
+        "204":
+          description: Environment deleted
+
+  # ===== TEST SUITES =====
+  /projects/{projectId}/suites:
+    parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: [Test Suites]
+      summary: List test suites
+      responses:
+        "200":
+          description: List of test suites
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TestSuite'
+    post:
+      tags: [Test Suites]
+      summary: Create test suite
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, test_type]
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                test_type:
+                  type: string
+                  enum: [api, e2e, load, unit]
+                schedule_cron:
+                  type: string
+                  description: "Cron expression (@hourly, @daily, @every 30m)"
+                config:
+                  type: object
+                tags:
+                  type: array
+                  items:
+                    type: string
+                max_retries:
+                  type: integer
+                parallel:
+                  type: boolean
+                max_parallel:
+                  type: integer
+                timeout_ms:
+                  type: integer
+      responses:
+        "201":
+          description: Suite created
+
+  # ===== TEST CASES =====
+  /projects/{projectId}/suites/{suiteId}/cases:
+    parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: suiteId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: [Test Cases]
+      summary: List test cases in a suite
+      responses:
+        "200":
+          description: List of test cases
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TestCase'
+    post:
+      tags: [Test Cases]
+      summary: Create a test case
+      description: |
+        Create a test case with configuration for API testing.
+
+        ## Variable Syntax
+        Use `{{variable_name}}` to reference captured variables or environment variables.
+
+        ## Built-in Functions
+        - `{{$uuid()}}` - Random UUID
+        - `{{$random_email()}}` - Random email
+        - `{{$random_string(length)}}` - Random string
+        - `{{$random_int(min, max)}}` - Random integer
+        - `{{$random_name()}}` - Random full name
+        - `{{$timestamp()}}` - Unix timestamp (seconds)
+        - `{{$timestamp_ms()}}` - Unix timestamp (milliseconds)
+        - `{{$iso_date()}}` - ISO 8601 date
+        - `{{$env(VAR_NAME)}}` - Environment variable
+        - `{{$seq(name)}}` - Auto-incrementing sequence
+
+        ## Assertion Types
+        - `status` - HTTP status code
+        - `json_path` - JSON path value (e.g., `$.data.id`)
+        - `header` - Response header value
+        - `response_time` - Response time in ms (less than or equal)
+
+        ## Variable Capture
+        Add `capture_as` to an assertion to capture the actual value for use in subsequent tests.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, config]
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                config:
+                  type: object
+                  example:
+                    method: "POST"
+                    url: "{{base_url}}/users"
+                    headers:
+                      Content-Type: "application/json"
+                      Authorization: "Bearer {{auth_token}}"
+                    body:
+                      name: "{{$random_name()}}"
+                      email: "{{$random_email()}}"
+                    assertions:
+                      - type: "status"
+                        expected: 201
+                      - type: "json_path"
+                        path: "$.id"
+                        capture_as: "created_user_id"
+                      - type: "response_time"
+                        expected: 2000
+                tags:
+                  type: array
+                  items:
+                    type: string
+                sort_order:
+                  type: integer
+                enabled:
+                  type: boolean
+                  default: true
+                max_retries:
+                  type: integer
+                  default: 0
+                timeout_ms:
+                  type: integer
+                pre_script:
+                  type: string
+                post_script:
+                  type: string
+                dataset_id:
+                  type: string
+                  format: uuid
+      responses:
+        "201":
+          description: Test case created
+
+  # ===== TEST RUNS =====
+  /projects/{projectId}/suites/{suiteId}/runs:
+    parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: suiteId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    post:
+      tags: [Test Runs]
+      summary: Trigger a test run
+      description: |
+        Triggers execution of all enabled test cases in the suite.
+        Jobs are dispatched to available workers.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                trigger:
+                  type: string
+                  enum: [manual, api, ci]
+                  default: manual
+                metadata:
+                  type: object
+                environment_id:
+                  type: string
+                  format: uuid
+                  description: Environment to use for this run
+      responses:
+        "201":
+          description: Test run triggered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestRun'
+
+  /runs/{runId}:
+    parameters:
+      - name: runId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: [Test Runs]
+      summary: Get test run details
+      responses:
+        "200":
+          description: Test run details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestRun'
+
+  /runs/{runId}/cancel:
+    parameters:
+      - name: runId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    post:
+      tags: [Test Runs]
+      summary: Cancel a running test
+      responses:
+        "200":
+          description: Run cancelled
+
+  /runs/{runId}/results:
+    parameters:
+      - name: runId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: [Test Runs]
+      summary: List test results for a run
+      responses:
+        "200":
+          description: List of test results
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TestResult'
+
+  /runs/{runId}/results/{resultId}:
+    parameters:
+      - name: runId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: resultId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: [Test Runs]
+      summary: Get detailed test result
+      description: Includes request/response data, assertions, and captured variables
+      responses:
+        "200":
+          description: Detailed test result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestResult'
+
+  # ===== DATASETS =====
+  /projects/{projectId}/datasets:
+    parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: [Datasets]
+      summary: List datasets
+      responses:
+        "200":
+          description: List of datasets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Dataset'
+    post:
+      tags: [Datasets]
+      summary: Create a dataset
+      description: |
+        Create a dataset for data-driven testing. Each row becomes a separate test execution.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, data]
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                format:
+                  type: string
+                  enum: [json, csv]
+                  default: json
+                data:
+                  type: array
+                  items:
+                    type: object
+                  example:
+                    - username: "user1"
+                      password: "pass1"
+                      expected_status: 200
+                    - username: ""
+                      password: "pass2"
+                      expected_status: 400
+      responses:
+        "201":
+          description: Dataset created
+
+  /datasets/{datasetId}:
+    parameters:
+      - name: datasetId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: [Datasets]
+      summary: Get dataset
+      responses:
+        "200":
+          description: Dataset details
+    put:
+      tags: [Datasets]
+      summary: Update dataset
+      responses:
+        "200":
+          description: Dataset updated
+    delete:
+      tags: [Datasets]
+      summary: Delete dataset
+      responses:
+        "204":
+          description: Dataset deleted
+
+  # ===== WEBHOOKS =====
+  /projects/{projectId}/webhooks:
+    parameters:
+      - name: projectId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: [Webhooks]
+      summary: List webhooks
+      responses:
+        "200":
+          description: List of webhooks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Webhook'
+    post:
+      tags: [Webhooks]
+      summary: Create a webhook
+      description: |
+        Creates a webhook with an auto-generated secret. Use the secret to trigger runs externally.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name:
+                  type: string
+                suite_id:
+                  type: string
+                  format: uuid
+                  description: Suite to trigger when webhook fires
+                enabled:
+                  type: boolean
+                  default: true
+      responses:
+        "201":
+          description: Webhook created (secret included in response)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Webhook'
+
+  /webhooks/trigger:
+    post:
+      tags: [Webhooks]
+      summary: Trigger a test run via webhook
+      security: []
+      description: |
+        Public endpoint. No authentication required.
+        Provide the webhook secret via `X-Webhook-Secret` header or `secret` query parameter.
+      parameters:
+        - name: X-Webhook-Secret
+          in: header
+          schema:
+            type: string
+        - name: secret
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Test run triggered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestRun'
+        "401":
+          description: Invalid or missing webhook secret
+
+  # ===== OPENAPI =====
+  /openapi/parse:
+    post:
+      tags: [OpenAPI]
+      summary: Parse an OpenAPI specification
+      description: |
+        Parses an OpenAPI 3.x spec (YAML or JSON) and returns extracted endpoints,
+        security schemes, and generated auth header templates.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [content]
+              properties:
+                content:
+                  type: string
+                  description: Raw OpenAPI spec content (YAML or JSON)
+      responses:
+        "200":
+          description: Parsed specification
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ParsedSpec'
+
+  /openapi/import:
+    post:
+      tags: [OpenAPI]
+      summary: Import endpoints as test cases
+      description: |
+        Creates a test suite and test cases from selected OpenAPI endpoints.
+        Supports custom headers, body, assertions, and variable capture.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [project_id, suite_name, endpoints]
+              properties:
+                project_id:
+                  type: string
+                  format: uuid
+                suite_name:
+                  type: string
+                tags:
+                  type: array
+                  items:
+                    type: string
+                endpoints:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      method:
+                        type: string
+                      path:
+                        type: string
+                      headers:
+                        type: object
+                      params:
+                        type: object
+                      body:
+                        type: object
+                      assertions:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            type:
+                              type: string
+                            path:
+                              type: string
+                            expected:
+                              {}
+                            capture_as:
+                              type: string
+                      variables:
+                        type: object
+      responses:
+        "201":
+          description: Import successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  suite_id:
+                    type: string
+                    format: uuid
+                  cases_created:
+                    type: integer
+
+  # ===== EXPORT =====
+  /export:
+    post:
+      tags: [Export]
+      summary: Export test suite
+      description: |
+        Export a test suite to Postman Collection, cURL scripts, or k6 load test scripts.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [suite_id, format]
+              properties:
+                suite_id:
+                  type: string
+                  format: uuid
+                format:
+                  type: string
+                  enum: [postman, curl, k6]
+                environment_id:
+                  type: string
+                  format: uuid
+                  description: Apply environment's base_url to exported URLs
+      responses:
+        "200":
+          description: Exported content
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExportResponse'
+
+  # ===== WORKERS =====
+  /workers:
+    get:
+      tags: [Workers]
+      summary: List workers
+      responses:
+        "200":
+          description: List of registered workers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Worker'
+
+  /workers/{workerId}:
+    parameters:
+      - name: workerId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: [Workers]
+      summary: Get worker details
+      responses:
+        "200":
+          description: Worker details
+    delete:
+      tags: [Workers]
+      summary: Remove a worker
+      responses:
+        "204":
+          description: Worker removed
+
+  # ===== DASHBOARD =====
+  /dashboard/summary:
+    get:
+      tags: [Dashboard]
+      summary: Get dashboard summary
+      parameters:
+        - name: project_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardSummary'
+
+  /dashboard/trends:
+    get:
+      tags: [Dashboard]
+      summary: Get test run trends
+      parameters:
+        - name: project_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: Trend data points
+
+  /dashboard/flaky:
+    get:
+      tags: [Dashboard]
+      summary: Get flaky tests
+      parameters:
+        - name: project_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: List of flaky tests
+
+  # ===== NOTIFICATIONS =====
+  /notifications/config:
+    get:
+      tags: [Notifications]
+      summary: List notification configs
+      responses:
+        "200":
+          description: List of notification configurations
+    post:
+      tags: [Notifications]
+      summary: Create notification config
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [project_id, type, config]
+              properties:
+                project_id:
+                  type: string
+                  format: uuid
+                type:
+                  type: string
+                  enum: [slack, email, webhook]
+                config:
+                  type: object
+                  description: Channel-specific config (webhook_url, email address, etc.)
+                events:
+                  type: array
+                  items:
+                    type: string
+                    enum: [run_failed, run_passed, flaky_detected]
+                enabled:
+                  type: boolean
+      responses:
+        "201":
+          description: Notification config created
+
+  # ===== WEBSOCKET =====
+  /ws:
+    get:
+      tags: [Dashboard]
+      summary: WebSocket connection for real-time updates
+      description: |
+        Establishes a WebSocket connection for receiving real-time events:
+        - `run.started` - Test run started
+        - `run.completed` - Test run completed
+        - `result.updated` - Individual test result updated
+        - `worker.status` - Worker status change
+      responses:
+        "101":
+          description: WebSocket upgrade

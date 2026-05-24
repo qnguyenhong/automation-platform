@@ -55,6 +55,29 @@ func SetupRoutes(r *chi.Mux, deps *handler.Deps, logger *slog.Logger) {
 					r.Put("/", deps.UpdateProject)
 					r.Delete("/", deps.DeleteProject)
 
+					// Environments under project
+					r.Route("/environments", func(r chi.Router) {
+						r.Get("/", deps.ListEnvironments)
+						r.Post("/", deps.CreateEnvironment)
+						r.Route("/{envID}", func(r chi.Router) {
+							r.Get("/", deps.GetEnvironment)
+							r.Put("/", deps.UpdateEnvironment)
+							r.Delete("/", deps.DeleteEnvironment)
+						})
+					})
+
+					// Datasets under project
+					r.Route("/datasets", func(r chi.Router) {
+						r.Get("/", deps.ListDatasets)
+						r.Post("/", deps.CreateDataset)
+					})
+
+					// Webhooks under project
+					r.Route("/webhooks", func(r chi.Router) {
+						r.Get("/", deps.ListWebhooks)
+						r.Post("/", deps.CreateWebhook)
+					})
+
 					// Suites under project
 					r.Route("/suites", func(r chi.Router) {
 						r.Get("/", deps.ListTestSuites)
@@ -92,8 +115,10 @@ func SetupRoutes(r *chi.Mux, deps *handler.Deps, logger *slog.Logger) {
 				r.Get("/", deps.GetTestRun)
 				r.Post("/cancel", deps.CancelRun)
 				r.Get("/results", deps.ListTestResults)
+				r.Get("/load-metrics", deps.GetRunLoadMetrics)
 				r.Route("/results/{resultID}", func(r chi.Router) {
 					r.Get("/", deps.GetTestResult)
+					r.Get("/load-metrics", deps.GetResultLoadMetrics)
 				})
 			})
 
@@ -125,6 +150,26 @@ func SetupRoutes(r *chi.Mux, deps *handler.Deps, logger *slog.Logger) {
 				r.Post("/import", deps.ImportOpenAPI)
 			})
 
+			// Environments (under project)
+			// Note: Also accessible via /projects/{projectID}/environments in the project route
+
+			// Datasets
+			r.Route("/datasets/{datasetID}", func(r chi.Router) {
+				r.Get("/", deps.GetDataset)
+				r.Put("/", deps.UpdateDataset)
+				r.Delete("/", deps.DeleteDataset)
+			})
+
+			// Webhooks (management under project routes, trigger is public)
+			r.Route("/webhooks/{webhookID}", func(r chi.Router) {
+				r.Get("/", deps.GetWebhook)
+				r.Put("/", deps.UpdateWebhook)
+				r.Delete("/", deps.DeleteWebhook)
+			})
+
+			// Export
+			r.Post("/export", deps.ExportSuite)
+
 			// WebSocket
 			r.Get("/ws", deps.HandleWebSocket)
 		})
@@ -139,5 +184,8 @@ func SetupRoutes(r *chi.Mux, deps *handler.Deps, logger *slog.Logger) {
 			r.Post("/jobs/{jobID}/result", deps.SubmitJobResult)
 			r.Post("/jobs/{jobID}/log", deps.SubmitJobLog)
 		})
+
+		// Public webhook trigger (no auth required, uses secret)
+		r.Post("/webhooks/trigger", deps.TriggerWebhook)
 	})
 }

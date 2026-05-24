@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -160,6 +161,17 @@ func (d *Deps) SubmitJobLog(w http.ResponseWriter, r *http.Request) {
 		"content": logEntry.Content,
 		"stream":  logEntry.Stream,
 	})
+
+	if logEntry.Stream == "metrics" {
+		var metricsData any
+		if err := json.Unmarshal([]byte(logEntry.Content), &metricsData); err == nil {
+			d.Hub.Broadcast(map[string]any{
+				"type":    "load_metric",
+				"job_id":  jobID.String(),
+				"metrics": metricsData,
+			})
+		}
+	}
 
 	httputil.JSON(w, http.StatusOK, map[string]string{"status": "ok"})
 }

@@ -23,8 +23,11 @@ type WorkerRepository interface {
 }
 
 type WorkerService struct {
-	repo      WorkerRepository
-	jwtSecret []byte
+	repo       WorkerRepository
+	jwtSecret  []byte
+	dispatcher interface {
+		Dequeue() *model.WorkerJob
+	}
 }
 
 func NewWorkerService(repo WorkerRepository, jwtSecret string) *WorkerService {
@@ -32,6 +35,10 @@ func NewWorkerService(repo WorkerRepository, jwtSecret string) *WorkerService {
 		repo:      repo,
 		jwtSecret: []byte(jwtSecret),
 	}
+}
+
+func (s *WorkerService) SetDispatcher(dispatcher interface{ Dequeue() *model.WorkerJob }) {
+	s.dispatcher = dispatcher
 }
 
 func (s *WorkerService) Register(ctx context.Context, req model.RegisterWorkerRequest) (*model.Worker, string, error) {
@@ -85,9 +92,10 @@ func (s *WorkerService) Heartbeat(ctx context.Context, workerID uuid.UUID, req m
 }
 
 func (s *WorkerService) GetNextJob(ctx context.Context, workerID uuid.UUID) (*model.WorkerJob, error) {
-	// This would query for pending jobs matching worker capabilities
-	// For now return nil (no jobs available)
-	return nil, nil
+	if s.dispatcher == nil {
+		return nil, nil
+	}
+	return s.dispatcher.Dequeue(), nil
 }
 
 func (s *WorkerService) ValidateWorkerToken(ctx context.Context, tokenStr string) (string, error) {

@@ -25,7 +25,11 @@ func NewTestCaseService(repo TestCaseRepository) *TestCaseService {
 }
 
 func (s *TestCaseService) Create(ctx context.Context, suiteID uuid.UUID, req model.CreateTestCaseRequest) (*model.TestCase, error) {
-	return s.repo.Create(ctx, suiteID, req.Name, req.Description, req.Config, req.Tags, req.SortOrder, req.Enabled)
+	config := req.Config
+	if len(config) == 0 || string(config) == `""` || string(config) == "null" {
+		config = []byte("{}")
+	}
+	return s.repo.Create(ctx, suiteID, req.Name, req.Description, config, req.Tags, req.SortOrder, req.Enabled)
 }
 
 func (s *TestCaseService) Get(ctx context.Context, id uuid.UUID) (*model.TestCase, error) {
@@ -37,7 +41,11 @@ func (s *TestCaseService) ListBySuite(ctx context.Context, suiteID uuid.UUID) ([
 }
 
 func (s *TestCaseService) Update(ctx context.Context, id uuid.UUID, req model.UpdateTestCaseRequest) (*model.TestCase, error) {
-	return s.repo.Update(ctx, id, req.Name, req.Description, req.Config, req.Tags, req.SortOrder, req.Enabled)
+	config := req.Config
+	if len(config) == 0 || string(config) == `""` || string(config) == "null" {
+		config = []byte("{}")
+	}
+	return s.repo.Update(ctx, id, req.Name, req.Description, config, req.Tags, req.SortOrder, req.Enabled)
 }
 
 func (s *TestCaseService) Delete(ctx context.Context, id uuid.UUID) error {

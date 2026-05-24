@@ -109,7 +109,7 @@ func (s *OpenAPIService) ImportEndpoints(ctx context.Context, req ImportOpenAPIR
 		TestType: model.TestTypeAPI,
 		Tags:     req.Tags,
 		Config:   json.RawMessage(`{}`),
-	})
+	}, userID)
 	if err != nil {
 		return nil, fmt.Errorf("create suite: %w", err)
 	}

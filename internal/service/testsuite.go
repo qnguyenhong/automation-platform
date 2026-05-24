@@ -24,13 +24,25 @@ func NewTestSuiteService(repo TestSuiteRepository) *TestSuiteService {
 	return &TestSuiteService{repo: repo}
 }
 
-func (s *TestSuiteService) Create(ctx context.Context, projectID uuid.UUID, req model.CreateTestSuiteRequest) (*model.TestSuite, error) {
+func (s *TestSuiteService) Create(ctx context.Context, projectID uuid.UUID, req model.CreateTestSuiteRequest, userID string) (*model.TestSuite, error) {
 	var scheduleCron *string
 	if req.ScheduleCron != "" {
 		scheduleCron = &req.ScheduleCron
 	}
 
-	return s.repo.Create(ctx, projectID, req.Name, req.Description, string(req.TestType), scheduleCron, req.Config, req.Tags, uuid.Nil)
+	createdBy := uuid.Nil
+	if userID != "" {
+		if u, err := uuid.Parse(userID); err == nil {
+			createdBy = u
+		}
+	}
+
+	config := req.Config
+	if len(config) == 0 || string(config) == `""` || string(config) == "null" {
+		config = []byte("{}")
+	}
+
+	return s.repo.Create(ctx, projectID, req.Name, req.Description, string(req.TestType), scheduleCron, config, req.Tags, createdBy)
 }
 
 func (s *TestSuiteService) Get(ctx context.Context, id uuid.UUID) (*model.TestSuite, error) {
@@ -47,7 +59,12 @@ func (s *TestSuiteService) Update(ctx context.Context, id uuid.UUID, req model.U
 		scheduleCron = &req.ScheduleCron
 	}
 
-	return s.repo.Update(ctx, id, req.Name, req.Description, string(req.TestType), scheduleCron, req.Config, req.Tags)
+	config := req.Config
+	if len(config) == 0 || string(config) == `""` || string(config) == "null" {
+		config = []byte("{}")
+	}
+
+	return s.repo.Update(ctx, id, req.Name, req.Description, string(req.TestType), scheduleCron, config, req.Tags)
 }
 
 func (s *TestSuiteService) Delete(ctx context.Context, id uuid.UUID) error {

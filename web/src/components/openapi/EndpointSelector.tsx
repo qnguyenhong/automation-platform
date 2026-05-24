@@ -42,7 +42,7 @@ export function EndpointSelector({
   const grouped = useMemo(() => {
     const groups: Record<string, ParsedEndpoint[]> = {}
     for (const ep of filtered) {
-      const tag = ep.tags[0] || 'default'
+      const tag = (ep.tags && ep.tags[0]) || 'default'
       if (!groups[tag]) groups[tag] = []
       groups[tag].push(ep)
     }

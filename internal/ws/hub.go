@@ -1,6 +1,7 @@
 package ws
 
 import (
+	"context"
 	"encoding/json"
 	"log/slog"
 	"net/http"
@@ -120,7 +121,7 @@ func (c *Client) readPump() {
 	}()
 
 	for {
-		_, _, err := c.conn.Read(nil)
+		_, _, err := c.conn.Read(context.Background())
 		if err != nil {
 			break
 		}
@@ -131,7 +132,7 @@ func (c *Client) writePump() {
 	defer c.conn.Close(websocket.StatusNormalClosure, "")
 
 	for message := range c.send {
-		if err := c.conn.Write(nil, websocket.MessageText, message); err != nil {
+		if err := c.conn.Write(context.Background(), websocket.MessageText, message); err != nil {
 			break
 		}
 	}

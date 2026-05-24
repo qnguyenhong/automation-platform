@@ -34,6 +34,11 @@ func Auth(authSvc *service.AuthService) func(http.Handler) http.Handler {
 				token = r.Header.Get("X-API-Key")
 			}
 
+			// Check query parameter "token" (especially for WebSockets)
+			if token == "" {
+				token = r.URL.Query().Get("token")
+			}
+
 			if token == "" {
 				httputil.Error(w, http.StatusUnauthorized, "missing authentication")
 				return

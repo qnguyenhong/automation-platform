@@ -1,12 +1,14 @@
 package handler
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 
 	"github.com/qnguyenhong/automation-platform/internal/model"
+	"github.com/qnguyenhong/automation-platform/internal/server/middleware"
 	"github.com/qnguyenhong/automation-platform/pkg/httputil"
 )
 
@@ -39,8 +41,10 @@ func (d *Deps) CreateTestSuite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	suite, err := d.SuiteSvc.Create(r.Context(), projectID, req)
+	userID := middleware.GetUserID(r.Context())
+	suite, err := d.SuiteSvc.Create(r.Context(), projectID, req, userID)
 	if err != nil {
+		log.Printf("CREATE TEST SUITE ERROR: %v", err)
 		httputil.AppError(w, err)
 		return
 	}

@@ -44,3 +44,24 @@ export function useCreateCase(projectId: string, suiteId: string) {
     },
   })
 }
+
+export function useUpdateCase(projectId: string, suiteId: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ caseId, data }: { caseId: string; data: Partial<TestCase> }) =>
+      casesApi.update(projectId, suiteId, caseId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cases', projectId, suiteId] })
+    },
+  })
+}
+
+export function useDeleteCase(projectId: string, suiteId: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (caseId: string) => casesApi.delete(projectId, suiteId, caseId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cases', projectId, suiteId] })
+    },
+  })
+}

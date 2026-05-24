@@ -13,20 +13,24 @@ export default function WorkerDetail() {
   })
 
   if (!worker) {
-    return <div>Loading...</div>
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="w-8 h-8 border-4 border-slate-800 border-t-indigo-500 rounded-full animate-spin"></div>
+      </div>
+    )
   }
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">{worker.name}</h1>
-          <p className="text-gray-500">{worker.hostname}</p>
+          <h1 className="text-2xl font-bold text-white">{worker.name}</h1>
+          <p className="text-slate-400 font-mono text-xs mt-0.5">{worker.hostname}</p>
         </div>
-        <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-          worker.status === 'online' ? 'bg-green-100 text-green-800' :
-          worker.status === 'busy' ? 'bg-yellow-100 text-yellow-800' :
-          'bg-gray-100 text-gray-800'
+        <span className={`inline-flex items-center px-3 py-1 rounded-md text-xs font-bold uppercase border ${
+          worker.status === 'online' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' :
+          worker.status === 'busy' ? 'bg-amber-500/10 border-amber-500/20 text-amber-450' :
+          'bg-slate-800/40 border-slate-800 text-slate-500'
         }`}>
           {worker.status}
         </span>
@@ -34,55 +38,59 @@ export default function WorkerDetail() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Worker Info */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold mb-4">Worker Information</h3>
-          <dl className="space-y-3">
+        <div className="glass-panel rounded-xl p-6 border border-slate-850">
+          <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400 mb-4">Worker Information</h3>
+          <dl className="space-y-4">
             <div>
-              <dt className="text-sm text-gray-500">ID</dt>
-              <dd className="font-mono text-sm">{worker.id}</dd>
+              <dt className="text-xs text-slate-500 font-bold uppercase tracking-wider">Node ID</dt>
+              <dd className="font-mono text-sm text-indigo-400 font-semibold mt-1">{worker.id}</dd>
             </div>
             <div>
-              <dt className="text-sm text-gray-500">IP Address</dt>
-              <dd>{worker.ip_address || 'N/A'}</dd>
+              <dt className="text-xs text-slate-500 font-bold uppercase tracking-wider">IP Address</dt>
+              <dd className="text-sm font-mono mt-1 text-slate-200">{worker.ip_address || '—'}</dd>
             </div>
             <div>
-              <dt className="text-sm text-gray-500">Version</dt>
-              <dd>{worker.version || 'N/A'}</dd>
+              <dt className="text-xs text-slate-500 font-bold uppercase tracking-wider">Agent Version</dt>
+              <dd className="text-sm font-mono mt-1 text-slate-200">{worker.version || '—'}</dd>
             </div>
             <div>
-              <dt className="text-sm text-gray-500">Max Concurrent</dt>
-              <dd>{worker.max_concurrent}</dd>
+              <dt className="text-xs text-slate-500 font-bold uppercase tracking-wider">Max Concurrency Limit</dt>
+              <dd className="text-sm mt-1 text-slate-200 font-semibold">{worker.max_concurrent} active concurrent threads</dd>
             </div>
             <div>
-              <dt className="text-sm text-gray-500">Last Heartbeat</dt>
-              <dd>{worker.last_heartbeat ? new Date(worker.last_heartbeat).toLocaleString() : 'Never'}</dd>
+              <dt className="text-xs text-slate-500 font-bold uppercase tracking-wider">Last Heartbeat Ping</dt>
+              <dd className="text-sm mt-1 text-slate-350">{worker.last_heartbeat ? new Date(worker.last_heartbeat).toLocaleString() : 'Never'}</dd>
             </div>
             <div>
-              <dt className="text-sm text-gray-500">Registered At</dt>
-              <dd>{new Date(worker.registered_at).toLocaleString()}</dd>
+              <dt className="text-xs text-slate-500 font-bold uppercase tracking-wider">Node Registration Time</dt>
+              <dd className="text-sm mt-1 text-slate-350">{new Date(worker.registered_at).toLocaleString()}</dd>
             </div>
           </dl>
         </div>
 
         {/* Executors */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold mb-4">Supported Executors</h3>
+        <div className="glass-panel rounded-xl p-6 border border-slate-850">
+          <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400 mb-4">Supported Execution Engines</h3>
           <div className="space-y-2">
             {worker.executor_types?.map((type) => (
-              <div key={type} className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
-                <Activity className="w-4 h-4 text-blue-600" />
-                <span className="font-medium">{type}</span>
+              <div key={type} className="flex items-center gap-2.5 p-3 bg-slate-900/40 border border-slate-850 rounded-xl">
+                <Activity className="w-4 h-4 text-indigo-400" />
+                <span className="font-semibold text-sm text-slate-200 capitalize">{type}</span>
               </div>
             ))}
           </div>
 
-          <h3 className="text-lg font-semibold mt-6 mb-4">Labels</h3>
+          <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400 mt-6 mb-4">Node Labels</h3>
           <div className="flex flex-wrap gap-2">
-            {Object.entries(worker.labels || {}).map(([key, value]) => (
-              <span key={key} className="px-3 py-1 text-sm bg-gray-100 rounded">
-                {key}: {String(value)}
-              </span>
-            ))}
+            {worker.labels && Object.keys(worker.labels).length > 0 ? (
+              Object.entries(worker.labels).map(([key, value]) => (
+                <span key={key} className="px-3 py-1 text-xs font-mono bg-slate-900 border border-slate-850 text-slate-350 rounded-md font-semibold">
+                  {key}: {String(value)}
+                </span>
+              ))
+            ) : (
+              <p className="text-xs text-slate-500 italic">No custom labels configured on this node.</p>
+            )}
           </div>
         </div>
       </div>

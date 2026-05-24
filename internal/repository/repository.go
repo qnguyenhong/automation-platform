@@ -21,6 +21,7 @@ var _ service.TestRunRepository = (*TestRunRepo)(nil)
 var _ service.TestResultRepository = (*TestResultRepo)(nil)
 var _ service.WorkerRepository = (*WorkerRepo)(nil)
 var _ service.DashboardRepository = (*DashboardRepo)(nil)
+var _ service.LoadMetricsRepository = (*LoadMetricsRepo)(nil)
 
 type UserRepo struct {
 	pool *pgxpool.Pool
@@ -191,11 +192,15 @@ func NewTestSuiteRepo(pool *pgxpool.Pool) *TestSuiteRepo {
 
 func (r *TestSuiteRepo) Create(ctx context.Context, projectID uuid.UUID, name, description string, testType string, scheduleCron *string, config []byte, tags []string, createdBy uuid.UUID) (*model.TestSuite, error) {
 	var s model.TestSuite
+	var createdByVal *uuid.UUID
+	if createdBy != uuid.Nil {
+		createdByVal = &createdBy
+	}
 	err := r.pool.QueryRow(ctx,
 		`INSERT INTO test_suites (project_id, name, description, test_type, schedule_cron, config, tags, created_by)
 		 VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 		 RETURNING id, project_id, name, description, test_type, schedule_cron, config, tags, created_by, created_at, updated_at`,
-		projectID, name, description, testType, scheduleCron, string(config), tags, createdBy,
+		projectID, name, description, testType, scheduleCron, string(config), tags, createdByVal,
 	).Scan(&s.ID, &s.ProjectID, &s.Name, &s.Description, &s.TestType, &s.ScheduleCron, &s.Config, &s.Tags, &s.CreatedBy, &s.CreatedAt, &s.UpdatedAt)
 	if err != nil {
 		return nil, err
@@ -771,13 +776,13 @@ func (r *DashboardRepo) GetTrends(ctx context.Context, projectID *uuid.UUID, fro
 	if projectID != nil {
 		rows, err := r.pool.Query(ctx,
 			`SELECT
-				DATE(created_at) as date,
+				(created_at::date)::text as date,
 				COUNT(*) FILTER (WHERE status = 'passed'),
 				COUNT(*) FILTER (WHERE status = 'failed'),
-				COALESCE(AVG(duration_ms), 0)
+				COALESCE(AVG(duration_ms), 0)::bigint
 			 FROM test_runs
 			 WHERE project_id = $1 AND created_at >= $2 AND created_at <= $3
-			 GROUP BY DATE(created_at)
+			 GROUP BY created_at::date
 			 ORDER BY date`,
 			*projectID, from, to,
 		)
@@ -796,13 +801,13 @@ func (r *DashboardRepo) GetTrends(ctx context.Context, projectID *uuid.UUID, fro
 	} else {
 		rows, err := r.pool.Query(ctx,
 			`SELECT
-				DATE(created_at) as date,
+				(created_at::date)::text as date,
 				COUNT(*) FILTER (WHERE status = 'passed'),
 				COUNT(*) FILTER (WHERE status = 'failed'),
-				COALESCE(AVG(duration_ms), 0)
+				COALESCE(AVG(duration_ms), 0)::bigint
 			 FROM test_runs
 			 WHERE created_at >= $1 AND created_at <= $2
-			 GROUP BY DATE(created_at)
+			 GROUP BY created_at::date
 			 ORDER BY date`,
 			from, to,
 		)
@@ -834,15 +839,6 @@ func NewOpenAPIRepo(pool *pgxpool.Pool) *OpenAPIRepo {
 	return &OpenAPIRepo{pool: pool}
 }
 
-func (r *OpenAPIRepo) CreateImport(ctx context.Context, projectID uuid.UUID, filename, specURL string, content []byte, version string, importedBy uuid.UUID) error {
-	_, err := r.pool.Exec(ctx,
-		`INSERT INTO openapi_imports (project_id, filename, spec_url, content, version, imported_by)
-		 VALUES ($1, $2, NULLIF($3, ''), $4, $5, $6)`,
-		projectID, filename, specURL, string(content), version, importedBy,
-	)
-	return err
-}
-
 func (r *OpenAPIRepo) ListImports(ctx context.Context, projectID uuid.UUID) ([]service.OpenAPIImport, error) {
 	rows, err := r.pool.Query(ctx,
 		`SELECT id, project_id, filename, spec_url, version, imported_by, imported_at
@@ -862,4 +858,72 @@ func (r *OpenAPIRepo) ListImports(ctx context.Context, projectID uuid.UUID) ([]s
 		imports = append(imports, imp)
 	}
 	return imports, nil
+}
+
+type LoadMetricsRepo struct {
+	pool *pgxpool.Pool
+}
+
+func NewLoadMetricsRepo(pool *pgxpool.Pool) *LoadMetricsRepo {
+	return &LoadMetricsRepo{pool: pool}
+}
+
+func (r *LoadMetricsRepo) Create(ctx context.Context, m *model.LoadMetricsDb) error {
+	err := r.pool.QueryRow(ctx,
+		`INSERT INTO load_metrics (
+			result_id, run_id, total_requests, success_count, error_count, error_rate, throughput_rps,
+			min_latency_ms, max_latency_ms, avg_latency_ms, p50_latency_ms, p90_latency_ms, p95_latency_ms, p99_latency_ms,
+			total_bytes, time_series, status_codes
+		) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+		RETURNING id, created_at`,
+		m.ResultID, m.RunID, m.TotalRequests, m.SuccessCount, m.ErrorCount, m.ErrorRate, m.ThroughputRPS,
+		m.MinLatencyMS, m.MaxLatencyMS, m.AvgLatencyMS, m.P50LatencyMS, m.P90LatencyMS, m.P95LatencyMS, m.P99LatencyMS,
+		m.TotalBytes, string(m.TimeSeries), string(m.StatusCodes),
+	).Scan(&m.ID, &m.CreatedAt)
+	return err
+}
+
+func (r *LoadMetricsRepo) GetByRun(ctx context.Context, runID uuid.UUID) (*model.LoadMetricsDb, error) {
+	var m model.LoadMetricsDb
+	err := r.pool.QueryRow(ctx,
+		`SELECT id, result_id, run_id, total_requests, success_count, error_count, error_rate, throughput_rps,
+			min_latency_ms, max_latency_ms, avg_latency_ms, p50_latency_ms, p90_latency_ms, p95_latency_ms, p99_latency_ms,
+			total_bytes, time_series, status_codes, created_at
+		 FROM load_metrics WHERE run_id = $1`, runID,
+	).Scan(
+		&m.ID, &m.ResultID, &m.RunID, &m.TotalRequests, &m.SuccessCount, &m.ErrorCount, &m.ErrorRate, &m.ThroughputRPS,
+		&m.MinLatencyMS, &m.MaxLatencyMS, &m.AvgLatencyMS, &m.P50LatencyMS, &m.P90LatencyMS, &m.P95LatencyMS, &m.P99LatencyMS,
+		&m.TotalBytes, &m.TimeSeries, &m.StatusCodes, &m.CreatedAt,
+	)
+	if err != nil {
+		return nil, errors.ErrNotFound
+	}
+	return &m, nil
+}
+
+func (r *OpenAPIRepo) CreateImport(ctx context.Context, projectID uuid.UUID, filename, specURL string, content []byte, version string, importedBy uuid.UUID) error {
+	_, err := r.pool.Exec(ctx,
+		`INSERT INTO openapi_imports (project_id, filename, spec_url, content, version, imported_by)
+		 VALUES ($1, $2, NULLIF($3, ''), $4, $5, $6)`,
+		projectID, filename, specURL, string(content), version, importedBy,
+	)
+	return err
+}
+
+func (r *LoadMetricsRepo) GetByResult(ctx context.Context, resultID uuid.UUID) (*model.LoadMetricsDb, error) {
+	var m model.LoadMetricsDb
+	err := r.pool.QueryRow(ctx,
+		`SELECT id, result_id, run_id, total_requests, success_count, error_count, error_rate, throughput_rps,
+			min_latency_ms, max_latency_ms, avg_latency_ms, p50_latency_ms, p90_latency_ms, p95_latency_ms, p99_latency_ms,
+			total_bytes, time_series, status_codes, created_at
+		 FROM load_metrics WHERE result_id = $1`, resultID,
+	).Scan(
+		&m.ID, &m.ResultID, &m.RunID, &m.TotalRequests, &m.SuccessCount, &m.ErrorCount, &m.ErrorRate, &m.ThroughputRPS,
+		&m.MinLatencyMS, &m.MaxLatencyMS, &m.AvgLatencyMS, &m.P50LatencyMS, &m.P90LatencyMS, &m.P95LatencyMS, &m.P99LatencyMS,
+		&m.TotalBytes, &m.TimeSeries, &m.StatusCodes, &m.CreatedAt,
+	)
+	if err != nil {
+		return nil, errors.ErrNotFound
+	}
+	return &m, nil
 }

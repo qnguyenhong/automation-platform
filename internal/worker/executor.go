@@ -66,6 +66,7 @@ type Artifact struct {
 // Registry manages available executors.
 type Registry struct {
 	executors []Executor
+	token     string
 }
 
 func NewRegistry() *Registry {
@@ -83,4 +84,12 @@ func (r *Registry) GetExecutor(testType string) Executor {
 		}
 	}
 	return nil
+}
+
+func (r *Registry) SetToken(token string) {
+	r.token = token
+}
+
+func (r *Registry) GetToken() string {
+	return r.token
 }

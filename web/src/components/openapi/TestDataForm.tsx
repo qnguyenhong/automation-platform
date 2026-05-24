@@ -48,7 +48,7 @@ export function TestDataForm({
     }
 
     // Add path parameters
-    for (const param of ep.parameters) {
+    for (const param of ep.parameters || []) {
       if (param.in === 'path') {
         defaultConfig.path = defaultConfig.path.replace(
           `{${param.name}}`,

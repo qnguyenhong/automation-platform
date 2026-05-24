@@ -23,6 +23,7 @@ func main() {
 	lg := logger.New(cfg.Log.Level, cfg.Log.Format)
 
 	registry := worker.NewRegistry()
+	registry.Register(executors.NewLoadExecutor(registry, &cfg.Worker))
 	registry.Register(executors.NewHTTPExecutor(30 * time.Second))
 
 	agent := worker.NewAgent(&cfg.Worker, lg, registry)

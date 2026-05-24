@@ -28,6 +28,12 @@ type TestResultRepository interface {
 	UpdateData(ctx context.Context, id uuid.UUID, status string, errorMessage *string, assertions, requestData, responseData, artifacts, metrics []byte, stdout, stderr *string, durationMS *int64, finishedAt *time.Time) (*model.TestResult, error)
 }
 
+type LoadMetricsRepository interface {
+	Create(ctx context.Context, metrics *model.LoadMetricsDb) error
+	GetByRun(ctx context.Context, runID uuid.UUID) (*model.LoadMetricsDb, error)
+	GetByResult(ctx context.Context, resultID uuid.UUID) (*model.LoadMetricsDb, error)
+}
+
 type Dispatcher interface {
 	Enqueue(job *model.WorkerJob)
 }
@@ -37,15 +43,17 @@ type TestRunService struct {
 	resultRepo TestResultRepository
 	suiteRepo  TestSuiteRepository
 	caseRepo   TestCaseRepository
+	loadRepo   LoadMetricsRepository
 	dispatcher Dispatcher
 }
 
-func NewTestRunService(runRepo TestRunRepository, resultRepo TestResultRepository, suiteRepo TestSuiteRepository, caseRepo TestCaseRepository, dispatcher Dispatcher) *TestRunService {
+func NewTestRunService(runRepo TestRunRepository, resultRepo TestResultRepository, suiteRepo TestSuiteRepository, caseRepo TestCaseRepository, loadRepo LoadMetricsRepository, dispatcher Dispatcher) *TestRunService {
 	return &TestRunService{
 		runRepo:    runRepo,
 		resultRepo: resultRepo,
 		suiteRepo:  suiteRepo,
 		caseRepo:   caseRepo,
+		loadRepo:   loadRepo,
 		dispatcher: dispatcher,
 	}
 }
@@ -176,10 +184,59 @@ func (s *TestRunService) SubmitResult(ctx context.Context, resultID uuid.UUID, r
 		return err
 	}
 
-	// Get the result to find the run ID
+	// Get the result to find the run ID and case
 	testResult, err := s.resultRepo.GetByID(ctx, resultID)
 	if err != nil {
 		return err
+	}
+
+	// Persist load metrics if test suite type is load
+	testCase, err := s.caseRepo.GetByID(ctx, testResult.CaseID)
+	if err == nil {
+		suite, err := s.suiteRepo.GetByID(ctx, testCase.SuiteID)
+		if err == nil && suite.TestType == "load" && len(result.Metrics) > 0 {
+			var rawMetrics model.LoadMetrics
+			if err := json.Unmarshal(result.Metrics, &rawMetrics); err == nil {
+				type TimeSeriesPayload struct {
+					RPS []model.TimePoint `json:"rps"`
+					P95 []model.TimePoint `json:"p95"`
+				}
+				tsPayload := TimeSeriesPayload{
+					RPS: rawMetrics.TimeSeriesRPS,
+					P95: rawMetrics.TimeSeriesP95,
+				}
+				tsBytes, _ := json.Marshal(tsPayload)
+				statusCodesBytes, _ := json.Marshal(rawMetrics.StatusCodes)
+
+				dbMetrics := &model.LoadMetricsDb{
+					ResultID:      testResult.ID,
+					RunID:         testResult.RunID,
+					TotalRequests: rawMetrics.TotalRequests,
+					SuccessCount:  rawMetrics.SuccessCount,
+					ErrorCount:    rawMetrics.ErrorCount,
+					ErrorRate:     rawMetrics.ErrorRate,
+					ThroughputRPS: rawMetrics.ThroughputRPS,
+					MinLatencyMS:  rawMetrics.MinLatencyMS,
+					MaxLatencyMS:  rawMetrics.MaxLatencyMS,
+					AvgLatencyMS:  rawMetrics.AvgLatencyMS,
+					P50LatencyMS:  rawMetrics.P50LatencyMS,
+					P90LatencyMS:  rawMetrics.P90LatencyMS,
+					P95LatencyMS:  rawMetrics.P95LatencyMS,
+					P99LatencyMS:  rawMetrics.P99LatencyMS,
+					TotalBytes:    rawMetrics.TotalBytes,
+					TimeSeries:    json.RawMessage(tsBytes),
+					StatusCodes:   json.RawMessage(statusCodesBytes),
+				}
+				_ = s.loadRepo.Create(ctx, dbMetrics)
+			}
+		}
+	}
+
+	// Check if we should retry (only for failed/error results)
+	if result.Status == model.StatusFailed || result.Status == model.StatusError {
+		if retried := s.attemptRetry(ctx, testResult); retried {
+			return nil // Don't update run counts yet, wait for retry
+		}
 	}
 
 	// Update run counts
@@ -230,4 +287,62 @@ func (s *TestRunService) SubmitResult(ctx context.Context, resultID uuid.UUID, r
 	}
 
 	return nil
+}
+
+// attemptRetry checks if a failed result should be retried and enqueues a retry job if so.
+func (s *TestRunService) attemptRetry(ctx context.Context, testResult *model.TestResult) bool {
+	// Get the test case to check retry config
+	testCase, err := s.caseRepo.GetByID(ctx, testResult.CaseID)
+	if err != nil {
+		return false
+	}
+
+	// Get suite for retry config fallback
+	suite, err := s.suiteRepo.GetByID(ctx, testCase.SuiteID)
+	if err != nil {
+		return false
+	}
+
+	// Determine max retries (case-level overrides suite-level)
+	// This would require the new columns; for now check config JSON
+	var caseConfig map[string]any
+	if err := json.Unmarshal(testCase.Config, &caseConfig); err == nil {
+		if maxRetries, ok := caseConfig["max_retries"]; ok {
+			if mr, ok := maxRetries.(float64); ok && int(mr) > 0 {
+				// Count existing retries for this case in this run
+				results, _ := s.resultRepo.ListByRun(ctx, testResult.RunID)
+				retryCount := 0
+				for _, r := range results {
+					if r.CaseID == testResult.CaseID && r.RetryOf != nil {
+						retryCount++
+					}
+				}
+
+				if retryCount < int(mr) {
+					// Create a new retry result
+					newResult, err := s.resultRepo.Create(ctx, testResult.RunID, testResult.CaseID, nil, string(model.StatusPending))
+					if err != nil {
+						return false
+					}
+
+					// Enqueue retry job
+					run, _ := s.runRepo.GetByID(ctx, testResult.RunID)
+					if run != nil {
+						s.dispatcher.Enqueue(&model.WorkerJob{
+							JobID:    newResult.ID.String(),
+							ResultID: newResult.ID.String(),
+							TestCase: *testCase,
+							Suite:    *suite,
+							Run:      *run,
+							Timeout:  5 * time.Minute,
+						})
+					}
+					return true
+				}
+			}
+		}
+	}
+
+	_ = suite // suppress unused
+	return false
 }
