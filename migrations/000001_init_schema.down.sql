@@ -1,0 +1,9 @@
+DROP TABLE IF EXISTS metric_snapshots;
+DROP TABLE IF EXISTS notification_configs;
+DROP TABLE IF EXISTS test_results;
+DROP TABLE IF EXISTS test_runs;
+DROP TABLE IF EXISTS test_cases;
+DROP TABLE IF EXISTS test_suites;
+DROP TABLE IF EXISTS workers;
+DROP TABLE IF EXISTS projects;
+DROP TABLE IF EXISTS users;

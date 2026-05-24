@@ -1,0 +1,47 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+bin/
+cmd/server/server
+cmd/worker/worker
+cmd/cli/atp
+cmd/migrate/migrate
+
+# Test
+*.test
+*.out
+coverage.html
+
+# Go
+vendor/
+
+# Environment
+.env
+.env.local
+.env.production
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node / Frontend
+web/node_modules/
+web/dist/
+web/.vite/
+
+# Build artifacts
+dist/
+tmp/
+
+# Logs
+*.log
