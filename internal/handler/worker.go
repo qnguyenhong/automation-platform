@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/qnguyenhong/automation-platform/internal/model"
+	"github.com/qnguyenhong/automation-platform/internal/server/middleware"
 	"github.com/qnguyenhong/automation-platform/pkg/httputil"
 )
 
@@ -92,7 +93,7 @@ func (d *Deps) WorkerHeartbeat(w http.ResponseWriter, r *http.Request) {
 }
 
 func (d *Deps) GetNextJob(w http.ResponseWriter, r *http.Request) {
-	workerID := r.Context().Value("worker_id").(string)
+	workerID := middleware.GetWorkerID(r.Context())
 	workerUUID, _ := uuid.Parse(workerID)
 
 	job, err := d.WorkerSvc.GetNextJob(r.Context(), workerUUID)

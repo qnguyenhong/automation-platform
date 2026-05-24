@@ -3,6 +3,7 @@ package server
 import (
 	"log/slog"
 	"net/http"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	chimiddleware "github.com/go-chi/chi/v5/middleware"
@@ -18,7 +19,7 @@ func SetupRoutes(r *chi.Mux, deps *handler.Deps, logger *slog.Logger) {
 	r.Use(chimiddleware.RealIP)
 	r.Use(middleware.Logger(logger))
 	r.Use(chimiddleware.Recoverer)
-	r.Use(chimiddleware.Timeout(60))
+	r.Use(chimiddleware.Timeout(60 * time.Second))
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"*"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},

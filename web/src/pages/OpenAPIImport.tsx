@@ -20,7 +20,6 @@ export default function OpenAPIImport() {
   const navigate = useNavigate()
   const [step, setStep] = useState(1)
 
-  const [specContent, setSpecContent] = useState<string | null>(null)
   const [endpoints, setEndpoints] = useState<ParsedEndpoint[]>([])
   const [specInfo, setSpecInfo] = useState<{ title: string; version: string } | null>(null)
 
@@ -34,7 +33,6 @@ export default function OpenAPIImport() {
   const importMutation = useImportEndpoints()
 
   const handleParsed = async (content: string) => {
-    setSpecContent(content)
     try {
       const result = await parseMutation.mutateAsync({ content })
       setEndpoints(result.endpoints)

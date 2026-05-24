@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react'
-import { ChevronDown, ChevronRight, Variable } from 'lucide-react'
+import { useState } from 'react'
+import { ChevronDown, ChevronRight } from 'lucide-react'
 import { VariableInput } from './VariableInput'
 import { VariablePreview } from './VariablePreview'
 import { AssertionBuilder } from './AssertionBuilder'

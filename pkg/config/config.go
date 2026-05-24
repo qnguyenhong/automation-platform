@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"gopkg.in/yaml.v3"
@@ -116,6 +117,9 @@ func overrideFromEnv(cfg *Config) {
 	if v := os.Getenv("WORKER_NAME"); v != "" {
 		cfg.Worker.Name = v
 	}
+	if v := os.Getenv("WORKER_EXECUTOR_TYPES"); v != "" {
+		cfg.Worker.ExecutorTypes = splitAndTrim(v)
+	}
 	if v := os.Getenv("WORKER_MAX_CONCURRENT"); v != "" {
 		fmt.Sscanf(v, "%d", &cfg.Worker.MaxConcurrent)
 	}
@@ -135,6 +139,18 @@ func overrideFromEnv(cfg *Config) {
 	if v := os.Getenv("LOG_FORMAT"); v != "" {
 		cfg.Log.Format = v
 	}
+}
+
+func splitAndTrim(s string) []string {
+	parts := strings.Split(s, ",")
+	result := make([]string, 0, len(parts))
+	for _, p := range parts {
+		p = strings.TrimSpace(p)
+		if p != "" {
+			result = append(result, p)
+		}
+	}
+	return result
 }
 
 // Addr returns the server address in host:port format.

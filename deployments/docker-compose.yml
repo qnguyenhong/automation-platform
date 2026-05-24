@@ -53,7 +53,8 @@ services:
       LOG_LEVEL: "debug"
       LOG_FORMAT: "text"
     depends_on:
-      - server
+      server:
+        condition: service_started
     restart: unless-stopped
 
   frontend:
@@ -63,11 +64,9 @@ services:
     container_name: automation-frontend
     ports:
       - "3000:3000"
-    environment:
-      VITE_API_BASE_URL: "http://localhost:8080/api/v1"
-      VITE_WS_URL: "ws://localhost:8080/api/v1/ws"
     depends_on:
-      - server
+      server:
+        condition: service_started
     restart: unless-stopped
 
 volumes:

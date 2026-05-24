@@ -63,7 +63,7 @@ export interface ImportEndpointConfig {
   path: string
   headers: Record<string, string>
   params: Record<string, string>
-  body: Record<string, unknown>
+  body: Record<string, unknown> | unknown
   assertions: AssertionConfig[]
 }
 

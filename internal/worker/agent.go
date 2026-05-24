@@ -87,18 +87,20 @@ func (a *Agent) register(ctx context.Context) error {
 	}
 
 	var result struct {
-		Worker struct {
-			ID string `json:"id"`
-		} `json:"worker"`
-		Token string `json:"token"`
+		Data struct {
+			Worker struct {
+				ID string `json:"id"`
+			} `json:"worker"`
+			Token string `json:"token"`
+		} `json:"data"`
 	}
 
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return fmt.Errorf("decode register response: %w", err)
 	}
 
-	a.workerID = result.Worker.ID
-	a.token = result.Token
+	a.workerID = result.Data.Worker.ID
+	a.token = result.Data.Token
 	return nil
 }
 
@@ -207,9 +209,43 @@ func (a *Agent) pollNextJob(ctx context.Context) (*Job, error) {
 		return nil, fmt.Errorf("unexpected status: %d", resp.StatusCode)
 	}
 
-	var job Job
-	if err := json.NewDecoder(resp.Body).Decode(&job); err != nil {
+	var envelope struct {
+		Data struct {
+			JobID    string `json:"job_id"`
+			ResultID string `json:"result_id"`
+			TestCase struct {
+				ID     string          `json:"id"`
+				Config json.RawMessage `json:"config"`
+			} `json:"test_case"`
+			Suite struct {
+				ID       string `json:"id"`
+				TestType string `json:"test_type"`
+			} `json:"suite"`
+			Run struct {
+				ID string `json:"id"`
+			} `json:"run"`
+			Timeout time.Duration `json:"timeout"`
+		} `json:"data"`
+	}
+
+	if err := json.NewDecoder(resp.Body).Decode(&envelope); err != nil {
 		return nil, err
+	}
+
+	var config map[string]any
+	if len(envelope.Data.TestCase.Config) > 0 {
+		_ = json.Unmarshal(envelope.Data.TestCase.Config, &config)
+	}
+
+	job := Job{
+		JobID:      envelope.Data.JobID,
+		ResultID:   envelope.Data.ResultID,
+		TestCaseID: envelope.Data.TestCase.ID,
+		SuiteID:    envelope.Data.Suite.ID,
+		RunID:      envelope.Data.Run.ID,
+		TestType:   envelope.Data.Suite.TestType,
+		Config:     config,
+		Timeout:    envelope.Data.Timeout,
 	}
 
 	return &job, nil

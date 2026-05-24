@@ -1,7 +1,6 @@
 import { useParams } from 'react-router-dom'
 import { useRun, useRunResults } from '../hooks/useRuns'
 import { StatusBadge } from '../components/StatusBadge'
-import { Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 export default function TestRunDetail() {

@@ -1,12 +1,15 @@
+import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { useProjects } from '../../hooks/useProjects'
+import { useProjects, useCreateProject } from '../../hooks/useProjects'
 import {
   LayoutDashboard,
   FolderKanban,
   PlayCircle,
   Server,
   Settings,
-  ChevronDown,
+  Plus,
+  X,
+  Check,
 } from 'lucide-react'
 
 const navigation = [
@@ -18,6 +21,10 @@ const navigation = [
 export default function Sidebar() {
   const location = useLocation()
   const { data: projects } = useProjects()
+  const createProjectMutation = useCreateProject()
+
+  const [isCreating, setIsCreating] = useState(false)
+  const [projectName, setProjectName] = useState('')
 
   return (
     <aside className="w-64 bg-white border-r border-gray-200 flex flex-col">
@@ -45,10 +52,66 @@ export default function Sidebar() {
         })}
 
         <div className="pt-4">
-          <div className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-500">
-            <FolderKanban className="w-4 h-4" />
-            Projects
+          <div className="flex items-center justify-between px-3 py-2 text-sm font-medium text-gray-500">
+            <div className="flex items-center gap-2">
+              <FolderKanban className="w-4 h-4" />
+              Projects
+            </div>
+            {!isCreating && (
+              <button
+                onClick={() => setIsCreating(true)}
+                className="p-1 hover:bg-gray-100 rounded text-gray-500 hover:text-gray-900 transition-colors"
+                title="Create Project"
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+            )}
           </div>
+
+          {isCreating && (
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault()
+                if (!projectName.trim()) return
+                try {
+                  await createProjectMutation.mutateAsync({ name: projectName.trim() })
+                  setProjectName('')
+                  setIsCreating(false)
+                } catch {
+                  alert('Failed to create project')
+                }
+              }}
+              className="px-3 py-2 flex items-center gap-1"
+            >
+              <input
+                type="text"
+                value={projectName}
+                onChange={(e) => setProjectName(e.target.value)}
+                placeholder="Project name..."
+                className="flex-1 min-w-0 px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                autoFocus
+                disabled={createProjectMutation.isPending}
+              />
+              <button
+                type="submit"
+                disabled={createProjectMutation.isPending || !projectName.trim()}
+                className="p-1 hover:bg-green-50 text-green-600 rounded hover:text-green-800 disabled:opacity-50"
+              >
+                <Check className="w-4 h-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsCreating(false)
+                  setProjectName('')
+                }}
+                disabled={createProjectMutation.isPending}
+                className="p-1 hover:bg-red-50 text-red-600 rounded hover:text-red-800 disabled:opacity-50"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </form>
+          )}
 
           {projects?.map((project) => (
             <Link

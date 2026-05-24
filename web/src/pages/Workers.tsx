@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { workersApi } from '../api/workers'
-import { Server, Wifi, WifiOff, Activity } from 'lucide-react'
+import { Server, Wifi, Activity } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 export default function Workers() {

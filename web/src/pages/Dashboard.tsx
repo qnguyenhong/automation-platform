@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { dashboardApi } from '../api/dashboard'
-import { runsApi, TestRun } from '../api/runs'
+import { runsApi } from '../api/runs'
 import { useProjects } from '../hooks/useProjects'
 import { useState } from 'react'
 import {
@@ -20,7 +20,6 @@ import {
   CheckCircle,
   XCircle,
   Server,
-  Clock,
 } from 'lucide-react'
 
 const COLORS = ['#10B981', '#EF4444', '#F59E0B', '#6B7280']

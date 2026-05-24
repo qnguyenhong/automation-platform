@@ -6,7 +6,7 @@ interface AssertionBuilderProps {
   assertions: AssertionConfig[]
   onChange: (assertions: AssertionConfig[]) => void
   capturedVars: Record<string, unknown>
-  onCapture: (name: string, value: unknown) => void
+  onCapture?: (name: string, value: unknown) => void
 }
 
 const ASSERTION_TYPES = [
@@ -20,7 +20,7 @@ export function AssertionBuilder({
   assertions,
   onChange,
   capturedVars,
-  onCapture,
+  onCapture: _onCapture,
 }: AssertionBuilderProps) {
   const [showCapture, setShowCapture] = useState<Record<number, boolean>>({})
 

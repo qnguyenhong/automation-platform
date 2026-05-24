@@ -1,7 +1,7 @@
 import { useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { workersApi } from '../api/workers'
-import { Server, Activity, Clock } from 'lucide-react'
+import { Activity } from 'lucide-react'
 
 export default function WorkerDetail() {
   const { workerId } = useParams<{ workerId: string }>()

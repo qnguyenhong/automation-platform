@@ -195,7 +195,7 @@ func (r *TestSuiteRepo) Create(ctx context.Context, projectID uuid.UUID, name, d
 		`INSERT INTO test_suites (project_id, name, description, test_type, schedule_cron, config, tags, created_by)
 		 VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 		 RETURNING id, project_id, name, description, test_type, schedule_cron, config, tags, created_by, created_at, updated_at`,
-		projectID, name, description, testType, scheduleCron, config, tags, createdBy,
+		projectID, name, description, testType, scheduleCron, string(config), tags, createdBy,
 	).Scan(&s.ID, &s.ProjectID, &s.Name, &s.Description, &s.TestType, &s.ScheduleCron, &s.Config, &s.Tags, &s.CreatedBy, &s.CreatedAt, &s.UpdatedAt)
 	if err != nil {
 		return nil, err
@@ -242,7 +242,7 @@ func (r *TestSuiteRepo) Update(ctx context.Context, id uuid.UUID, name, descript
 		`UPDATE test_suites SET name = $2, description = $3, test_type = $4, schedule_cron = $5, config = $6, tags = $7, updated_at = now()
 		 WHERE id = $1
 		 RETURNING id, project_id, name, description, test_type, schedule_cron, config, tags, created_by, created_at, updated_at`,
-		id, name, description, testType, scheduleCron, config, tags,
+		id, name, description, testType, scheduleCron, string(config), tags,
 	).Scan(&s.ID, &s.ProjectID, &s.Name, &s.Description, &s.TestType, &s.ScheduleCron, &s.Config, &s.Tags, &s.CreatedBy, &s.CreatedAt, &s.UpdatedAt)
 	if err != nil {
 		return nil, errors.ErrNotFound
@@ -269,7 +269,7 @@ func (r *TestCaseRepo) Create(ctx context.Context, suiteID uuid.UUID, name, desc
 		`INSERT INTO test_cases (suite_id, name, description, config, tags, sort_order, enabled)
 		 VALUES ($1, $2, $3, $4, $5, $6, $7)
 		 RETURNING id, suite_id, name, description, config, tags, sort_order, enabled, created_at, updated_at`,
-		suiteID, name, description, config, tags, sortOrder, enabled,
+		suiteID, name, description, string(config), tags, sortOrder, enabled,
 	).Scan(&tc.ID, &tc.SuiteID, &tc.Name, &tc.Description, &tc.Config, &tc.Tags, &tc.SortOrder, &tc.Enabled, &tc.CreatedAt, &tc.UpdatedAt)
 	if err != nil {
 		return nil, err
@@ -316,7 +316,7 @@ func (r *TestCaseRepo) Update(ctx context.Context, id uuid.UUID, name, descripti
 		`UPDATE test_cases SET name = $2, description = $3, config = $4, tags = $5, sort_order = $6, enabled = $7, updated_at = now()
 		 WHERE id = $1
 		 RETURNING id, suite_id, name, description, config, tags, sort_order, enabled, created_at, updated_at`,
-		id, name, description, config, tags, sortOrder, enabled,
+		id, name, description, string(config), tags, sortOrder, enabled,
 	).Scan(&tc.ID, &tc.SuiteID, &tc.Name, &tc.Description, &tc.Config, &tc.Tags, &tc.SortOrder, &tc.Enabled, &tc.CreatedAt, &tc.UpdatedAt)
 	if err != nil {
 		return nil, errors.ErrNotFound
@@ -343,7 +343,7 @@ func (r *TestRunRepo) Create(ctx context.Context, suiteID, projectID uuid.UUID, 
 		`INSERT INTO test_runs (suite_id, project_id, status, trigger, triggered_by, total_cases, metadata)
 		 VALUES ($1, $2, $3, $4, $5, $6, $7)
 		 RETURNING id, suite_id, project_id, status, trigger, triggered_by, total_cases, passed, failed, skipped, errored, started_at, finished_at, duration_ms, metadata, created_at`,
-		suiteID, projectID, status, trigger, triggeredBy, totalCases, metadata,
+		suiteID, projectID, status, trigger, triggeredBy, totalCases, string(metadata),
 	).Scan(&tr.ID, &tr.SuiteID, &tr.ProjectID, &tr.Status, &tr.Trigger, &tr.TriggeredBy, &tr.TotalCases, &tr.Passed, &tr.Failed, &tr.Skipped, &tr.Errored, &tr.StartedAt, &tr.FinishedAt, &tr.DurationMS, &tr.Metadata, &tr.CreatedAt)
 	if err != nil {
 		return nil, err
@@ -522,7 +522,7 @@ func (r *TestResultRepo) UpdateData(ctx context.Context, id uuid.UUID, status st
 		`UPDATE test_results SET status = $2, error_message = $3, assertions = $4, request_data = $5, response_data = $6, artifacts = $7, metrics = $8, stdout = $9, stderr = $10, duration_ms = $11, finished_at = $12
 		 WHERE id = $1
 		 RETURNING id, run_id, case_id, worker_id, status, created_at`,
-		id, status, errorMessage, assertions, requestData, responseData, artifacts, metrics, stdout, stderr, durationMS, finishedAt,
+		id, status, errorMessage, string(assertions), string(requestData), string(responseData), string(artifacts), string(metrics), stdout, stderr, durationMS, finishedAt,
 	).Scan(&tr.ID, &tr.RunID, &tr.CaseID, &tr.WorkerID, &tr.Status, &tr.CreatedAt)
 	if err != nil {
 		return nil, err
@@ -544,7 +544,7 @@ func (r *WorkerRepo) Create(ctx context.Context, name, hostname, ipAddress strin
 		`INSERT INTO workers (name, hostname, ip_address, executor_types, max_concurrent, version, labels)
 		 VALUES ($1, $2, $3, $4, $5, $6, $7)
 		 RETURNING id, name, hostname, ip_address, executor_types, status, current_job_id, max_concurrent, version, labels, last_heartbeat, registered_at, updated_at`,
-		name, hostname, ipAddress, executorTypes, maxConcurrent, version, labels,
+		name, hostname, ipAddress, executorTypes, maxConcurrent, version, string(labels),
 	).Scan(&w.ID, &w.Name, &w.Hostname, &w.IPAddress, &w.ExecutorTypes, &w.Status, &w.CurrentJobID, &w.MaxConcurrent, &w.Version, &w.Labels, &w.LastHeartbeat, &w.RegisteredAt, &w.UpdatedAt)
 	if err != nil {
 		return nil, err
@@ -838,7 +838,7 @@ func (r *OpenAPIRepo) CreateImport(ctx context.Context, projectID uuid.UUID, fil
 	_, err := r.pool.Exec(ctx,
 		`INSERT INTO openapi_imports (project_id, filename, spec_url, content, version, imported_by)
 		 VALUES ($1, $2, NULLIF($3, ''), $4, $5, $6)`,
-		projectID, filename, specURL, content, version, importedBy,
+		projectID, filename, specURL, string(content), version, importedBy,
 	)
 	return err
 }
