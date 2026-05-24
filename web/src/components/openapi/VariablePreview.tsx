@@ -13,7 +13,6 @@ export function VariablePreview({ value, capturedVars = {} }: VariablePreviewPro
   const generatePreview = () => {
     setLoading(true)
 
-    // Client-side preview of common variables
     let result = value
     const replacements: Record<string, string> = {
       '\\{\\{\\$uuid\\}\\}': crypto.randomUUID(),
@@ -31,9 +30,8 @@ export function VariablePreview({ value, capturedVars = {} }: VariablePreviewPro
       result = result.replace(new RegExp(pattern, 'g'), replacement)
     }
 
-    // Replace captured variables
-    for (const [name, value] of Object.entries(capturedVars)) {
-      result = result.replace(new RegExp(`\\{\\{${name}\\}\\}`, 'g'), String(value))
+    for (const [name, val] of Object.entries(capturedVars)) {
+      result = result.replace(new RegExp(`\\{\\{${name}\\}\\}`, 'g'), String(val))
     }
 
     setPreview(result)
@@ -47,17 +45,17 @@ export function VariablePreview({ value, capturedVars = {} }: VariablePreviewPro
       <button
         onClick={generatePreview}
         disabled={loading}
-        className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+        className="flex items-center gap-1 text-xs text-slate-400 hover:text-slate-600 transition-colors font-semibold"
       >
         {loading ? (
           <RefreshCw className="h-3 w-3 animate-spin" />
         ) : (
           <Eye className="h-3 w-3" />
         )}
-        Preview
+        Preview resolved value
       </button>
       {preview && (
-        <div className="mt-1 p-2 bg-muted rounded text-xs font-mono break-all">
+        <div className="mt-1 p-2 bg-slate-50 border border-slate-200 rounded text-xs font-mono text-slate-700 break-all">
           {preview}
         </div>
       )}

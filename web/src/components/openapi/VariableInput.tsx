@@ -117,7 +117,7 @@ export function VariableInput({
     return parts.map((part, i) => {
       if (part.startsWith('{{') && part.endsWith('}}')) {
         return (
-          <span key={i} className="text-blue-600 font-medium bg-blue-50 px-0.5 rounded">
+          <span key={i} className="text-indigo-600 font-medium bg-indigo-50 px-0.5 rounded">
             {part}
           </span>
         )
@@ -143,10 +143,10 @@ export function VariableInput({
             }
           }}
           placeholder={placeholder || 'Type {{ to see variables...'}
-          className={`w-full px-3 py-2 border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary font-mono text-sm ${className}`}
+          className={`w-full px-3 py-1.5 border border-slate-200 rounded-lg bg-white text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-mono text-sm placeholder-slate-400 ${className}`}
         />
         {value.includes('{{') && (
-          <div className="absolute inset-0 px-3 py-2 pointer-events-none font-mono text-sm whitespace-pre">
+          <div className="absolute inset-0 px-3 py-1.5 pointer-events-none font-mono text-sm whitespace-pre">
             {highlightVariables(value)}
           </div>
         )}
@@ -155,25 +155,25 @@ export function VariableInput({
       {showAutocomplete && filtered.length > 0 && (
         <div
           ref={dropdownRef}
-          className="absolute z-50 w-full mt-1 bg-background border rounded-lg shadow-lg max-h-64 overflow-y-auto"
+          className="absolute z-50 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg max-h-64 overflow-y-auto"
         >
           {filtered.map((variable, index) => (
             <button
               key={variable.name}
               onClick={() => insertVariable(variable)}
               className={`w-full text-left px-3 py-2 flex items-center justify-between transition-colors ${
-                index === selectedIndex ? 'bg-primary/10' : 'hover:bg-muted'
+                index === selectedIndex ? 'bg-indigo-50' : 'hover:bg-slate-50'
               }`}
             >
               <div>
-                <span className="font-mono text-sm font-medium">
+                <span className="font-mono text-sm font-medium text-slate-800">
                   {`{{${variable.name}}}`}
                 </span>
-                <span className="text-xs text-muted-foreground ml-2">
+                <span className="text-xs text-slate-400 ml-2">
                   {variable.description}
                 </span>
               </div>
-              <span className="text-xs text-muted-foreground font-mono">
+              <span className="text-xs text-slate-400 font-mono">
                 {variable.example}
               </span>
             </button>

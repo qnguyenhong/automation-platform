@@ -51,10 +51,10 @@ export function AssertionBuilder({
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <label className="text-sm font-medium">Assertions</label>
+        <label className="text-sm font-semibold text-slate-700">Assertions</label>
         <button
           onClick={addAssertion}
-          className="flex items-center gap-1 text-sm text-primary hover:text-primary/80 transition-colors"
+          className="flex items-center gap-1 text-sm text-indigo-600 hover:text-indigo-700 font-semibold transition-colors"
         >
           <Plus className="h-4 w-4" />
           Add
@@ -62,13 +62,13 @@ export function AssertionBuilder({
       </div>
 
       {assertions.length === 0 && (
-        <p className="text-sm text-muted-foreground">No assertions added</p>
+        <p className="text-sm text-slate-400">No assertions added yet</p>
       )}
 
       {assertions.map((assertion, index) => {
         const typeConfig = ASSERTION_TYPES.find((t) => t.value === assertion.type)
         return (
-          <div key={index} className="p-3 border rounded-lg space-y-2">
+          <div key={index} className="p-3 border border-slate-200 rounded-lg space-y-2 bg-slate-50">
             <div className="flex items-center gap-2">
               <select
                 value={assertion.type}
@@ -78,7 +78,7 @@ export function AssertionBuilder({
                     path: undefined,
                   })
                 }
-                className="px-2 py-1 border rounded text-sm bg-background"
+                className="px-2 py-1.5 border border-slate-200 rounded text-sm bg-white text-slate-700 focus:outline-none focus:ring-1 focus:ring-indigo-500"
               >
                 {ASSERTION_TYPES.map((t) => (
                   <option key={t.value} value={t.value}>
@@ -95,7 +95,7 @@ export function AssertionBuilder({
                   placeholder={
                     assertion.type === 'header' ? 'Header name' : '$.data.id'
                   }
-                  className="flex-1 px-2 py-1 border rounded text-sm bg-background font-mono"
+                  className="flex-1 px-2 py-1.5 border border-slate-200 rounded text-sm bg-white font-mono text-slate-700 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                 />
               )}
 
@@ -110,15 +110,15 @@ export function AssertionBuilder({
                   updateAssertion(index, { expected: val })
                 }}
                 placeholder="Expected"
-                className="w-32 px-2 py-1 border rounded text-sm bg-background"
+                className="w-32 px-2 py-1.5 border border-slate-200 rounded text-sm bg-white text-slate-700 focus:outline-none focus:ring-1 focus:ring-indigo-500"
               />
 
               <button
                 onClick={() => toggleCapture(index)}
-                className={`px-2 py-1 text-xs rounded transition-colors ${
+                className={`px-2 py-1.5 text-xs rounded font-semibold transition-colors ${
                   showCapture[index]
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                    ? 'bg-indigo-600 text-white'
+                    : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
                 }`}
               >
                 Capture
@@ -126,7 +126,7 @@ export function AssertionBuilder({
 
               <button
                 onClick={() => removeAssertion(index)}
-                className="text-muted-foreground hover:text-destructive transition-colors"
+                className="text-slate-400 hover:text-rose-500 transition-colors"
               >
                 <Trash2 className="h-4 w-4" />
               </button>
@@ -134,7 +134,7 @@ export function AssertionBuilder({
 
             {showCapture[index] && (
               <div className="flex items-center gap-2 pl-2">
-                <span className="text-xs text-muted-foreground">Capture as:</span>
+                <span className="text-xs text-slate-500">Capture as:</span>
                 <input
                   type="text"
                   value={assertion.capture_as || ''}
@@ -142,7 +142,7 @@ export function AssertionBuilder({
                     updateAssertion(index, { capture_as: e.target.value || undefined })
                   }
                   placeholder="variable_name"
-                  className="flex-1 px-2 py-1 border rounded text-sm bg-background font-mono"
+                  className="flex-1 px-2 py-1.5 border border-slate-200 rounded text-sm bg-white font-mono text-slate-700 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                 />
               </div>
             )}
@@ -151,13 +151,13 @@ export function AssertionBuilder({
       })}
 
       {Object.keys(capturedVars).length > 0 && (
-        <div className="p-3 bg-muted rounded-lg">
-          <p className="text-xs font-medium mb-2">Available Captured Variables:</p>
+        <div className="p-3 bg-indigo-50 border border-indigo-100 rounded-lg">
+          <p className="text-xs font-semibold text-indigo-700 mb-2">Available Captured Variables:</p>
           <div className="flex flex-wrap gap-1">
             {Object.entries(capturedVars).map(([name, value]) => (
               <span
                 key={name}
-                className="px-2 py-0.5 bg-background rounded text-xs font-mono"
+                className="px-2 py-0.5 bg-white border border-indigo-200 rounded text-xs font-mono text-indigo-600"
               >
                 {`{{${name}}}`} = {String(value)}
               </span>

@@ -13,6 +13,13 @@ interface TestDataFormProps {
   onCapture: (name: string, value: unknown) => void
 }
 
+const METHOD_COLORS: Record<string, string> = {
+  GET: 'bg-sky-50 text-sky-600 border border-sky-200',
+  POST: 'bg-emerald-50 text-emerald-600 border border-emerald-200',
+  PUT: 'bg-amber-50 text-amber-600 border border-amber-200',
+  DELETE: 'bg-rose-50 text-rose-600 border border-rose-200',
+}
+
 export function TestDataForm({
   endpoints,
   configs,
@@ -37,7 +44,6 @@ export function TestDataForm({
   const getConfig = (key: string, ep: ParsedEndpoint): ImportEndpointConfig => {
     if (configs[key]) return configs[key]
 
-    // Build default config from endpoint
     const defaultConfig: ImportEndpointConfig = {
       method: ep.method,
       path: ep.path,
@@ -47,7 +53,6 @@ export function TestDataForm({
       assertions: [{ type: 'status', expected: 200 }],
     }
 
-    // Add path parameters
     for (const param of ep.parameters || []) {
       if (param.in === 'path') {
         defaultConfig.path = defaultConfig.path.replace(
@@ -79,34 +84,26 @@ export function TestDataForm({
         const tab = getTab(key)
 
         return (
-          <div key={key} className="border rounded-lg overflow-hidden">
+          <div key={key} className="border border-slate-200 rounded-lg overflow-hidden">
             <button
               onClick={() => toggleCollapse(key)}
-              className="w-full flex items-center gap-3 px-4 py-3 bg-muted/50 hover:bg-muted transition-colors"
+              className="w-full flex items-center gap-3 px-4 py-3 bg-slate-50 hover:bg-slate-100 transition-colors text-left"
             >
               {isCollapsed ? (
-                <ChevronRight className="h-4 w-4" />
+                <ChevronRight className="h-4 w-4 text-slate-400" />
               ) : (
-                <ChevronDown className="h-4 w-4" />
+                <ChevronDown className="h-4 w-4 text-slate-400" />
               )}
               <span
-                className={`px-2 py-0.5 rounded text-xs font-mono font-bold ${
-                  ep.method === 'GET'
-                    ? 'bg-green-100 text-green-800'
-                    : ep.method === 'POST'
-                    ? 'bg-blue-100 text-blue-800'
-                    : ep.method === 'PUT'
-                    ? 'bg-yellow-100 text-yellow-800'
-                    : ep.method === 'DELETE'
-                    ? 'bg-red-100 text-red-800'
-                    : 'bg-gray-100 text-gray-800'
+                className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold ${
+                  METHOD_COLORS[ep.method] || 'bg-slate-100 text-slate-600 border border-slate-200'
                 }`}
               >
                 {ep.method}
               </span>
-              <span className="font-mono text-sm">{ep.path}</span>
+              <span className="font-mono text-sm text-slate-700">{ep.path}</span>
               {ep.summary && (
-                <span className="text-sm text-muted-foreground ml-auto">
+                <span className="text-xs text-slate-400 ml-auto">
                   {ep.summary}
                 </span>
               )}
@@ -114,17 +111,17 @@ export function TestDataForm({
 
             {!isCollapsed && (
               <div className="p-4 space-y-4">
-                <div className="flex gap-1 border-b">
+                <div className="flex gap-1 border-b border-slate-200">
                   {(['params', 'headers', 'body', 'assertions'] as const).map((t) => (
                     <button
                       key={t}
                       onClick={() =>
                         setActiveTab((prev) => ({ ...prev, [key]: t }))
                       }
-                      className={`px-3 py-2 text-sm font-medium border-b-2 transition-colors ${
+                      className={`px-3 py-2 text-sm font-semibold border-b-2 transition-colors ${
                         tab === t
-                          ? 'border-primary text-primary'
-                          : 'border-transparent text-muted-foreground hover:text-foreground'
+                          ? 'border-indigo-500 text-indigo-600'
+                          : 'border-transparent text-slate-500 hover:text-slate-700'
                       }`}
                     >
                       {t.charAt(0).toUpperCase() + t.slice(1)}
@@ -135,7 +132,7 @@ export function TestDataForm({
                 {tab === 'params' && (
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <label className="text-sm font-medium">Query Parameters</label>
+                      <label className="text-sm font-semibold text-slate-700">Query Parameters</label>
                       <button
                         onClick={() =>
                           onConfigChange(key, {
@@ -143,7 +140,7 @@ export function TestDataForm({
                             params: { ...config.params, '': '' },
                           })
                         }
-                        className="text-xs text-primary hover:text-primary/80"
+                        className="text-xs text-indigo-600 hover:text-indigo-700 font-semibold"
                       >
                         + Add
                       </button>
@@ -160,7 +157,7 @@ export function TestDataForm({
                             onConfigChange(key, { ...config, params: newParams })
                           }}
                           placeholder="Name"
-                          className="w-40 px-2 py-1 border rounded text-sm bg-background"
+                          className="w-40 px-2 py-1.5 border border-slate-200 rounded text-sm bg-white text-slate-700 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                         />
                         <div className="flex-1">
                           <VariableInput
@@ -182,7 +179,7 @@ export function TestDataForm({
                 {tab === 'headers' && (
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <label className="text-sm font-medium">Headers</label>
+                      <label className="text-sm font-semibold text-slate-700">Headers</label>
                       <button
                         onClick={() =>
                           onConfigChange(key, {
@@ -190,7 +187,7 @@ export function TestDataForm({
                             headers: { ...config.headers, '': '' },
                           })
                         }
-                        className="text-xs text-primary hover:text-primary/80"
+                        className="text-xs text-indigo-600 hover:text-indigo-700 font-semibold"
                       >
                         + Add
                       </button>
@@ -207,7 +204,7 @@ export function TestDataForm({
                             onConfigChange(key, { ...config, headers: newHeaders })
                           }}
                           placeholder="Name"
-                          className="w-40 px-2 py-1 border rounded text-sm bg-background"
+                          className="w-40 px-2 py-1.5 border border-slate-200 rounded text-sm bg-white text-slate-700 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                         />
                         <div className="flex-1">
                           <VariableInput
@@ -228,7 +225,7 @@ export function TestDataForm({
 
                 {tab === 'body' && (
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Request Body (JSON)</label>
+                    <label className="text-sm font-semibold text-slate-700">Request Body (JSON)</label>
                     <textarea
                       value={
                         typeof config.body === 'string'
@@ -244,10 +241,10 @@ export function TestDataForm({
                         }
                       }}
                       rows={8}
-                      className="w-full px-3 py-2 border rounded-lg bg-background text-foreground font-mono text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                      className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white text-slate-800 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     />
-                    <p className="text-xs text-muted-foreground">
-                      Use {'{{variable_name}}'} for dynamic values. Type {'{{'} to see available variables.
+                    <p className="text-xs text-slate-400">
+                      Use {'{{variable_name}}'} for dynamic values.
                     </p>
                     <VariablePreview
                       value={

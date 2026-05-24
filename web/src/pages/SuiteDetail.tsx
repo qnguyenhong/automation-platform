@@ -534,7 +534,8 @@ export default function SuiteDetail() {
                 <div className="p-8 text-center text-slate-500 text-xs italic font-medium">
                   No execution runs recorded yet for this suite.
                 </div>
-                         </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
